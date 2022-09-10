@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ProjectModuleManager">
+    <modules>
+      <module fileurl="file://$PROJECT_DIR$/.idea/MedicalQuarkus.iml" filepath="$PROJECT_DIR$/.idea/MedicalQuarkus.iml" />
+      <module fileurl="file://$PROJECT_DIR$/diseases-api/diseases-api.iml" filepath="$PROJECT_DIR$/diseases-api/diseases-api.iml" />
+      <module fileurl="file://$PROJECT_DIR$/medical-api/medical-api.iml" filepath="$PROJECT_DIR$/medical-api/medical-api.iml" />
+      <module fileurl="file://$PROJECT_DIR$/people-api/people-api.iml" filepath="$PROJECT_DIR$/people-api/people-api.iml" />
+    </modules>
+  </component>
+</project>
