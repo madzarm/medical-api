@@ -4,7 +4,6 @@ import com.example.domain.Disease;
 import com.example.domain.dto.DiseaseDto;
 import com.example.exception.exceptions.DatabaseEmptyException;
 import com.example.exception.exceptions.DiseaseNotFoundException;
-import com.example.exception.exceptions.EntityNotFoundException;
 import com.example.service.request.CreateDiseaseRequest;
 import com.example.service.result.SearchDiseasesResult;
 
@@ -20,27 +19,27 @@ public class DiseaseService {
         Disease disease = convertRequestToDisease(request);
         disease.persist();
 
-        List<DiseaseDto> diseaseDtoList = convertDiseaseListToDtoList(List.of(disease),true);
+        List<DiseaseDto> diseaseDtoList = convertDiseaseListToDtoList(List.of(disease), true);
         SearchDiseasesResult result = new SearchDiseasesResult(diseaseDtoList);
 
         return Response.status(201).entity(result).build();
     }
 
-    public Response getAllDiseases(){
+    public Response getAllDiseases() {
         List<Disease> diseases = Disease.listAll();
-        if(diseases.isEmpty())
+        if (diseases.isEmpty())
             throw new DatabaseEmptyException();
 
-        List<DiseaseDto> diseaseDtoList = convertDiseaseListToDtoList(diseases,true);
+        List<DiseaseDto> diseaseDtoList = convertDiseaseListToDtoList(diseases, true);
         SearchDiseasesResult searchDiseasesResult = new SearchDiseasesResult(diseaseDtoList);
 
         return Response.ok(searchDiseasesResult).build();
     }
 
-    public Response getDiseasesByIds(List<Long> diseaseIds){
+    public Response getDiseasesByIds(List<Long> diseaseIds) {
         List<Disease> diseases = Disease.listByIdsIn(diseaseIds);
 
-        if(diseases.isEmpty())
+        if (diseases.isEmpty())
             throw new DiseaseNotFoundException();
 
         diseaseIds.forEach(id -> {
@@ -49,7 +48,7 @@ public class DiseaseService {
         });
 
 
-        List<DiseaseDto> diseaseDtoList = convertDiseaseListToDtoList(diseases,true);
+        List<DiseaseDto> diseaseDtoList = convertDiseaseListToDtoList(diseases, true);
         SearchDiseasesResult searchDiseasesResult = new SearchDiseasesResult(diseaseDtoList);
 
         return Response.ok(searchDiseasesResult).build();
@@ -57,10 +56,10 @@ public class DiseaseService {
 
     public Response getDiseaseByName(String name) {
         List<Disease> diseases = Disease.listByNameContaining(name);
-        if(diseases.isEmpty())
+        if (diseases.isEmpty())
             throw new DiseaseNotFoundException();
 
-        List<DiseaseDto> diseaseDtoList = convertDiseaseListToDtoList(diseases,true);
+        List<DiseaseDto> diseaseDtoList = convertDiseaseListToDtoList(diseases, true);
         SearchDiseasesResult searchDiseasesResult = new SearchDiseasesResult(diseaseDtoList);
 
         return Response.ok(searchDiseasesResult).build();
@@ -68,10 +67,10 @@ public class DiseaseService {
 
     public Response getDiseasesByCurable(boolean curable) {
         List<Disease> diseases = Disease.listByCurable(curable);
-        if(diseases.isEmpty())
+        if (diseases.isEmpty())
             throw new DiseaseNotFoundException();
 
-        List<DiseaseDto> diseaseDtoList = convertDiseaseListToDtoList(diseases,true);
+        List<DiseaseDto> diseaseDtoList = convertDiseaseListToDtoList(diseases, true);
         SearchDiseasesResult searchDiseasesResult = new SearchDiseasesResult(diseaseDtoList);
 
         return Response.ok(searchDiseasesResult).build();
@@ -82,11 +81,11 @@ public class DiseaseService {
         boolean hasCurable = Objects.nonNull(curable);
         int success;
 
-        if(hasName && hasCurable)
-            success = Disease.updateByIdWithNameAndCurable(id,name,curable);
+        if (hasName && hasCurable)
+            success = Disease.updateByIdWithNameAndCurable(id, name, curable);
         else if (hasName)
-            success = Disease.updateByIdWithName(id,name);
-        else success = Disease.updateByIdWithCurable(id,curable);
+            success = Disease.updateByIdWithName(id, name);
+        else success = Disease.updateByIdWithCurable(id, curable);
 
         return checkExceptionAndReturnResult(success);
 
@@ -94,7 +93,7 @@ public class DiseaseService {
 
     public Response updateDiseaseByName(String name, Boolean curable) {
 
-        int success = Disease.updateByNameWithCurable(name,curable);
+        int success = Disease.updateByNameWithCurable(name, curable);
 
         return checkExceptionAndReturnResult(success);
     }
@@ -112,6 +111,7 @@ public class DiseaseService {
 
         return checkExceptionAndReturnResult(success);
     }
+
     public Response deleteDiseasesByCurable(boolean curable) {
 
         int success = Disease.deleteByCurable(curable);
@@ -121,16 +121,17 @@ public class DiseaseService {
 
     public Response deleteAllDiseases() {
 
-        int success = (int)Disease.deleteAll();
+        int success = (int) Disease.deleteAll();
 
         return checkExceptionAndReturnResult(success);
     }
+
     private List<DiseaseDto> convertDiseaseListToDtoList(List<Disease> diseaseList, boolean includeIds) {
         return diseaseList.stream().map(d -> {
                     DiseaseDto diseaseDto = DiseaseDto.builder()
                             .curable(d.getCurable())
                             .name(d.getName()).build();
-                    if(includeIds)
+                    if (includeIds)
                         diseaseDto.setId(d.getId());
                     return diseaseDto;
                 }
@@ -144,8 +145,8 @@ public class DiseaseService {
                 .curable(request.getCurable()).build();
     }
 
-    private Response checkExceptionAndReturnResult(int success){
-        if(success == 0)
+    private Response checkExceptionAndReturnResult(int success) {
+        if (success == 0)
             throw new DiseaseNotFoundException();
 
         return Response.ok().entity(success).build();

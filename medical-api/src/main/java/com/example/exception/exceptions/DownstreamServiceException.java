@@ -2,7 +2,7 @@ package com.example.exception.exceptions;
 
 import javax.ws.rs.core.Response;
 
-public class DownstreamServiceException extends RuntimeException{
+public class DownstreamServiceException extends RuntimeException {
 
     private Response response;
 

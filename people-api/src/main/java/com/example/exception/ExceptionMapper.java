@@ -1,4 +1,5 @@
 package com.example.exception;
+
 import com.example.exception.exceptions.*;
 import com.fasterxml.jackson.core.JsonParseException;
 
@@ -15,11 +16,11 @@ public class ExceptionMapper implements javax.ws.rs.ext.ExceptionMapper<Exceptio
             response = new ExceptionResponse("113", e.getMessage());
             return Response.status(202).entity(response).build();
         }
-        if(e instanceof DatabaseEmptyException) {
+        if (e instanceof DatabaseEmptyException) {
             response = new ExceptionResponse("151", e.getMessage());
             return Response.status(202).entity(response).build();
         }
-        if(e instanceof BadRequestException) {
+        if (e instanceof BadRequestException) {
             response = new ExceptionResponse("121", e.getMessage());
             return Response.status(202).entity(response).build();
         }

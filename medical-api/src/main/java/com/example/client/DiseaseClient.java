@@ -1,8 +1,6 @@
 package com.example.client;
 
 import com.example.service.request.CreateDiseaseRequest;
-import com.example.service.request.CreatePersonRequest;
-import org.eclipse.microprofile.openapi.annotations.Operation;
 import org.eclipse.microprofile.openapi.annotations.parameters.RequestBody;
 import org.eclipse.microprofile.rest.client.inject.RegisterRestClient;
 

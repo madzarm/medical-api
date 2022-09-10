@@ -28,7 +28,7 @@ public class PersonService {
         Person person = convertRequestToPerson(request);
         person.persist();
 
-        List<PersonDto> personDtos = convertPeopleToDtos(List.of(person),true,true);
+        List<PersonDto> personDtos = convertPeopleToDtos(List.of(person), true, true);
         SearchPeopleResult result = new SearchPeopleResult(personDtos);
 
         return Response.status(201).entity(result).build();
@@ -36,35 +36,36 @@ public class PersonService {
 
     public Response addDiseaseHistory(AddDiseaseHistoriesRequest request) {
         Optional<Person> personOptional = Person.findByIdOptional(request.getPersonId());
-        if(personOptional.isEmpty())
+        if (personOptional.isEmpty())
             throw new EntityNotFoundException();
 
         Person person = personOptional.get();
         List<DiseaseHistory> diseaseHistories = convertRequestToDiseaseHistory(request);
-        if(checkIfPersonAlreadyContainsThatDiseaseHistories(person,diseaseHistories))
+        if (checkIfPersonAlreadyContainsThatDiseaseHistories(person, diseaseHistories))
             throw new DiseaseAlreadyExistsException();
 
         person.addDiseaseHistories(diseaseHistories);
         person.persist();
 
-        return checkIfEmptyAndConvertToResult(List.of(person),true,true);
+        return checkIfEmptyAndConvertToResult(List.of(person), true, true);
     }
 
     public Response getAll() {
         List<Person> people = Person.listAll();
 
-        return checkIfEmptyAndConvertToResult(people,true,true);
+        return checkIfEmptyAndConvertToResult(people, true, true);
     }
+
     public Response getByIds(List<Long> personId) {
         List<Person> people = Person.listByIdsIn(personId);
 
-        return checkIfEmptyAndConvertToResult(people,true,true);
+        return checkIfEmptyAndConvertToResult(people, true, true);
     }
 
     public Response getByDiseaseIds(List<Long> personId) {
         List<Person> people = Person.listByDiseaseIdsIn(personId);
 
-        return checkIfEmptyAndConvertToResult(people,true,true);
+        return checkIfEmptyAndConvertToResult(people, true, true);
     }
 
     public Response getByName(String firstName, String lastName) {
@@ -73,11 +74,11 @@ public class PersonService {
         boolean hasBoth = hasFirstName && hasLastName;
 
         List<Person> people;
-        if(hasBoth) people = Person.listByFirstAndLastName(firstName,lastName);
+        if (hasBoth) people = Person.listByFirstAndLastName(firstName, lastName);
         else if (hasFirstName) people = Person.listByFirstName(firstName);
         else people = Person.listByLastName(lastName);
 
-        return checkIfEmptyAndConvertToResult(people,true,true);
+        return checkIfEmptyAndConvertToResult(people, true, true);
     }
 
     public Response getByAge(Integer ageLowerLimit, Integer ageUpperLimit) {
@@ -86,11 +87,11 @@ public class PersonService {
         boolean hasBoth = hasLower && hasUpper;
 
         List<Person> people;
-        if(hasBoth) people = Person.listByAgeLowerAndUpper(ageLowerLimit,ageUpperLimit);
+        if (hasBoth) people = Person.listByAgeLowerAndUpper(ageLowerLimit, ageUpperLimit);
         else if (hasLower) people = Person.listByAgeLower(ageLowerLimit);
         else people = Person.listByAgeUpper(ageUpperLimit);
 
-        return checkIfEmptyAndConvertToResult(people,true,true);
+        return checkIfEmptyAndConvertToResult(people, true, true);
     }
 
     public Response getByWeight(Integer weightLowerLimit, Integer weightUpperLimit) {
@@ -99,11 +100,11 @@ public class PersonService {
         boolean hasBoth = hasLower && hasUpper;
 
         List<Person> people;
-        if(hasBoth) people = Person.listByWeightLowerAndUpper(weightLowerLimit,weightUpperLimit);
+        if (hasBoth) people = Person.listByWeightLowerAndUpper(weightLowerLimit, weightUpperLimit);
         else if (hasLower) people = Person.listByWeightLower(weightLowerLimit);
         else people = Person.listByWeightUpper(weightUpperLimit);
 
-        return checkIfEmptyAndConvertToResult(people,true,true);
+        return checkIfEmptyAndConvertToResult(people, true, true);
     }
 
     public Response getByDate(Date from, Date to) {
@@ -112,11 +113,12 @@ public class PersonService {
         boolean hasBoth = hasFrom && hasTo;
 
         List<Person> people;
-        if(hasBoth) people = Person.listByDateDiscoveredBetween(convertDateToLocalDate(from),convertDateToLocalDate(to));
+        if (hasBoth)
+            people = Person.listByDateDiscoveredBetween(convertDateToLocalDate(from), convertDateToLocalDate(to));
         else if (hasFrom) people = Person.listByDateDiscoveredAfter(convertDateToLocalDate(from));
         else people = Person.listByDateDiscoveredBefore(convertDateToLocalDate(to));
 
-        return checkIfEmptyAndConvertToResult(people,true,true);
+        return checkIfEmptyAndConvertToResult(people, true, true);
     }
 
     public Response updatePerson(UpdatePersonRequest request) {
@@ -127,28 +129,29 @@ public class PersonService {
         Person person = personOptional.get();
         if (Objects.nonNull(request.getAge()))
             person.setAge(request.getAge());
-        if(Objects.nonNull(request.getWeight()))
+        if (Objects.nonNull(request.getWeight()))
             person.setWeight(request.getWeight());
-        if(Objects.nonNull(request.getFirstName()))
+        if (Objects.nonNull(request.getFirstName()))
             person.setFirstName(request.getFirstName());
-        if(Objects.nonNull(request.getLastName()))
+        if (Objects.nonNull(request.getLastName()))
             person.setLastName(request.getLastName());
 
         person.persist();
-        return checkIfEmptyAndConvertToResult(List.of(person),true,true);
+        return checkIfEmptyAndConvertToResult(List.of(person), true, true);
     }
+
     public Response updateDiseaseHistory(UpdateDiseaseHistoryRequest request) {
 
         Optional<Person> personOptional = Person.findByIdOptional(request.getPersonId());
         if (personOptional.isEmpty())
-            throw new EntityNotFoundException("Person with id:  \""+ request.getPersonId() + "\" not found!");
+            throw new EntityNotFoundException("Person with id:  \"" + request.getPersonId() + "\" not found!");
 
         Person person = personOptional.get();
         Optional<DiseaseHistory> diseaseHistoryOptional = person.getDiseaseHistories().stream()
                 .filter(dh -> dh.getId().equals(request.getDiseaseHistoryId()))
                 .findFirst();
 
-        if(diseaseHistoryOptional.isEmpty())
+        if (diseaseHistoryOptional.isEmpty())
             throw new DiseaseHistoryDoesNotExistException(request.getDiseaseHistoryId());
 
         DiseaseHistory diseaseHistory = diseaseHistoryOptional.get();
@@ -156,13 +159,13 @@ public class PersonService {
 
         person.persist();
 
-        return checkIfEmptyAndConvertToResult(List.of(person),true,true);
+        return checkIfEmptyAndConvertToResult(List.of(person), true, true);
     }
 
 
     private Person convertRequestToPerson(CreatePersonRequest request) {
         List<DiseaseHistory> diseaseHistories = new ArrayList<>();
-        if(!request.getDiseaseIds().isEmpty()) {
+        if (!request.getDiseaseIds().isEmpty()) {
             diseaseHistories = request.getDiseaseIds().stream()
                     .map(id -> DiseaseHistory.builder()
                             .diseaseId(id)
@@ -198,9 +201,9 @@ public class PersonService {
                     .lastName(person.getLastName())
                     .weight(person.getWeight())
                     .age(person.getAge())
-                    .diseaseHistories(convertDiseaseHistoriesToDtos(person.getDiseaseHistories(),includeDiseaseHistoryIds))
+                    .diseaseHistories(convertDiseaseHistoriesToDtos(person.getDiseaseHistories(), includeDiseaseHistoryIds))
                     .build();
-            if(includePersonIds)
+            if (includePersonIds)
                 personDto.setId(person.getId());
             return personDto;
         }).collect(Collectors.toList());
@@ -212,34 +215,35 @@ public class PersonService {
                     .diseaseId(dh.getDiseaseId())
                     .dateDiscovered(LocalDate.now())
                     .build();
-            if(includeIds)
+            if (includeIds)
                 dto.setId(dh.getId());
             return dto;
         }).collect(Collectors.toList());
     }
+
     public LocalDate convertDateToLocalDate(Date dateToConvert) {
         return dateToConvert.toInstant()
                 .atZone(ZoneId.systemDefault())
                 .toLocalDate();
     }
 
-    private Response checkIfEmptyAndConvertToResult(List<Person> people, boolean includePersonIds, boolean includeDiseaseHistoryIds ) {
-        if(people.isEmpty())
+    private Response checkIfEmptyAndConvertToResult(List<Person> people, boolean includePersonIds, boolean includeDiseaseHistoryIds) {
+        if (people.isEmpty())
             throw new EntityNotFoundException();
 
-        List<PersonDto> personDtos = convertPeopleToDtos(people,includePersonIds,includeDiseaseHistoryIds);
+        List<PersonDto> personDtos = convertPeopleToDtos(people, includePersonIds, includeDiseaseHistoryIds);
         SearchPeopleResult result = new SearchPeopleResult(personDtos);
 
         return Response.ok().entity(result).build();
     }
 
-    private boolean checkIfPersonAlreadyContainsThatDiseaseHistories(Person person, List<DiseaseHistory> diseaseHistories){
+    private boolean checkIfPersonAlreadyContainsThatDiseaseHistories(Person person, List<DiseaseHistory> diseaseHistories) {
         AtomicBoolean contains = new AtomicBoolean(false);
-        if(diseaseHistories.get(0).getId()!=null){
+        if (diseaseHistories.get(0).getId() != null) {
             diseaseHistories.forEach(dh -> {
-                if(person.getDiseaseHistories().stream()
+                if (person.getDiseaseHistories().stream()
                         .mapToLong(DiseaseHistory::getId)
-                        .anyMatch(l -> l==dh.getId())) {
+                        .anyMatch(l -> l == dh.getId())) {
                     contains.set(true);
                 }
             });

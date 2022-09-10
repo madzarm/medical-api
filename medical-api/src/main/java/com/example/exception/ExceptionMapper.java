@@ -1,7 +1,8 @@
 package com.example.exception;
 
 
-import com.example.exception.exceptions.*;
+import com.example.exception.exceptions.BadCreateMedicalRecordRequestException;
+import com.example.exception.exceptions.BadSearchMedicalRecordRequestException;
 import com.fasterxml.jackson.core.JsonParseException;
 
 import javax.ws.rs.core.Response;

@@ -33,19 +33,19 @@ public class MedicalRecordService {
     PersonClient personClient;
 
     public Response getMedicalRecords(GetMedicalRecordsRequest request) {
-        List<Long> diseaseIds = request.getDiseaseIds();
+        List<Long> diseaseIds;
         Response diseaseClientResponse;
         Response personClientResponse;
         List<PersonModel> personModels;
         List<DiseaseModel> diseaseModels;
         SearchMedicalRecordsResult result;
 
-//        personClientResponse =  personClient.getPeople(request.getPersonIds(), request.getDiseaseIds(),
-//                request.getFirstName(), request.getLastName(), request.getWeightLowerLimit(), request.getWeightUpperLimit(),
-//                request.getAgeLowerLimit(), request.getAgeUpperLimit(), request.getFrom(), request.getTo());
-//
-//        if(checkResponseForException(personClientResponse)!=null)
-//            return checkResponseForException(personClientResponse);
+        personClientResponse = personClient.getPeople(request.getPersonIds(), request.getDiseaseIds(),
+                request.getFirstName(), request.getLastName(), request.getWeightLowerLimit(), request.getWeightUpperLimit(),
+                request.getAgeLowerLimit(), request.getAgeUpperLimit(), request.getFrom(), request.getTo());
+
+        if (checkResponseForException(personClientResponse) != null)
+            return checkResponseForException(personClientResponse);
 
         personModels = personClientResponse.readEntity(SearchPeopleModel.class).getPeople();
 
@@ -53,12 +53,12 @@ public class MedicalRecordService {
 
         diseaseClientResponse = diseaseClient.getDiseasesByIds(diseaseIds);
 
-        if(checkResponseForException(diseaseClientResponse)!=null)
+        if (checkResponseForException(diseaseClientResponse) != null)
             return checkResponseForException(diseaseClientResponse);
 
         diseaseModels = diseaseClientResponse.readEntity(SearchDiseasesModel.class).getDiseases();
 
-        result = mapToMedicalRecordResult(diseaseModels,personModels);
+        result = mapToMedicalRecordResult(diseaseModels, personModels);
 
         return Response.ok().entity(result).build();
     }
@@ -72,36 +72,36 @@ public class MedicalRecordService {
         List<PersonModel> personModels;
         SearchMedicalRecordsResult result;
 
-        if(!request.getDiseaseIds().isEmpty()) {
+        if (!request.getDiseaseIds().isEmpty()) {
             responseFromDiseaseClient = diseaseClient.getDiseasesByIds(request.getDiseaseIds());
-        } else if (request.getDiseaseName()!=null) {
+        } else if (request.getDiseaseName() != null) {
             responseFromDiseaseClient = diseaseClient.getDiseasesByName(request.getDiseaseName());
         }
-        if(checkResponseForException(responseFromDiseaseClient)!=null)
+        if (checkResponseForException(responseFromDiseaseClient) != null)
             return checkResponseForException(responseFromDiseaseClient);
 
-        if(responseFromDiseaseClient!=null)
+        if (responseFromDiseaseClient != null)
             diseaseModels = responseFromDiseaseClient.readEntity(SearchDiseasesModel.class).getDiseases();
 
         personRequest = mapMedicalToPersonRequest(request);
-        if(personRequest.getDiseaseIds().isEmpty()) {
+        if (personRequest.getDiseaseIds().isEmpty()) {
             diseaseIds = diseaseModels.stream().map(DiseaseModel::getId).collect(Collectors.toList());
             personRequest.setDiseaseIds(diseaseIds);
         }
 
         responseFromPersonClient = personClient.createPerson(personRequest);
-        if(checkResponseForException(responseFromPersonClient)!=null)
+        if (checkResponseForException(responseFromPersonClient) != null)
             return checkResponseForException(responseFromPersonClient);
 
         personModels = responseFromPersonClient.readEntity(SearchPeopleModel.class).getPeople();
 
-        result = mapToMedicalRecordResult(diseaseModels,personModels);
+        result = mapToMedicalRecordResult(diseaseModels, personModels);
 
         return Response.ok().entity(result).build();
     }
 
     private Response checkResponseForException(Response response) {
-        if(response != null) {
+        if (response != null) {
             if (response.getStatus() == 202)
                 return Response
                         .status(response.getStatus())
@@ -112,7 +112,7 @@ public class MedicalRecordService {
 
 
     private SearchMedicalRecordsResult mapToMedicalRecordResult(List<DiseaseModel> diseaseModels, List<PersonModel> personModels) {
-        List<MedicalRecordDto> medicalRecordDtos = mapToMedicalRecordDtos(diseaseModels,personModels);
+        List<MedicalRecordDto> medicalRecordDtos = mapToMedicalRecordDtos(diseaseModels, personModels);
 
         SearchMedicalRecordsResult result = new SearchMedicalRecordsResult();
         result.setMedicalRecords(medicalRecordDtos);
@@ -123,7 +123,7 @@ public class MedicalRecordService {
     private List<MedicalRecordDto> mapToMedicalRecordDtos(List<DiseaseModel> diseaseModels, List<PersonModel> personModels) {
         return personModels.stream().map(p -> {
 
-            List<DiseaseHistoryDto> diseaseHistories = mapModelToDto(p.getDiseaseHistories(),diseaseModels);
+            List<DiseaseHistoryDto> diseaseHistories = mapModelToDto(p.getDiseaseHistories(), diseaseModels);
             diseaseHistories.removeAll(Collections.singleton(null));
 
             return MedicalRecordDto.builder()
@@ -136,7 +136,7 @@ public class MedicalRecordService {
         }).collect(Collectors.toList());
     }
 
-    private List<DiseaseHistoryDto> mapModelToDto (List<DiseaseHistoryModel> diseaseHistoryModels, List<DiseaseModel> diseaseModels){
+    private List<DiseaseHistoryDto> mapModelToDto(List<DiseaseHistoryModel> diseaseHistoryModels, List<DiseaseModel> diseaseModels) {
         return diseaseHistoryModels.stream().map(dh -> {
 
             Optional<DiseaseModel> diseaseOptional = diseaseModels.stream().filter(dr -> dr.getId().equals(dh.getDiseaseId())).findFirst();
@@ -168,7 +168,7 @@ public class MedicalRecordService {
                 .collect(Collectors.toList());
 
         longs.forEach(l -> l.forEach(lng -> {
-            if(!distinctLongs.contains(lng))
+            if (!distinctLongs.contains(lng))
                 distinctLongs.add(lng);
         }));
 

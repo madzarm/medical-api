@@ -18,7 +18,6 @@ import javax.validation.Validator;
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import java.time.LocalDate;
 import java.util.Date;
 import java.util.List;
 import java.util.Objects;
@@ -40,7 +39,7 @@ public class PersonResource {
     @Operation(summary = "Creates a person")
     public Response createPerson(@RequestBody CreatePersonRequest request) {
         ValidationResult validationResult = validate(request);
-        if(!validationResult.isSuccess()) {
+        if (!validationResult.isSuccess()) {
             return Response.ok(validationResult).build();
         }
         return personService.createPerson(request);
@@ -54,7 +53,7 @@ public class PersonResource {
     @Operation(summary = "updates a person by id")
     public Response updatePerson(@RequestBody UpdatePersonRequest request) {
         ValidationResult validationResult = validate(request);
-        if(!validationResult.isSuccess()) {
+        if (!validationResult.isSuccess()) {
             return Response.ok(validationResult).build();
         }
         return personService.updatePerson(request);
@@ -68,7 +67,7 @@ public class PersonResource {
     @Operation(summary = "Adds disease histories to a person")
     public Response addDiseaseHistories(@RequestBody AddDiseaseHistoriesRequest request) {
         ValidationResult validationResult = validate(request);
-        if(!validationResult.isSuccess()) {
+        if (!validationResult.isSuccess()) {
             return Response.ok(validationResult).build();
         }
         return personService.addDiseaseHistory(request);
@@ -82,7 +81,7 @@ public class PersonResource {
     @Operation(summary = "Updates diseaseHistories' DiseaseId")
     public Response updateDiseaseHistory(@RequestBody UpdateDiseaseHistoryRequest request) {
         ValidationResult validationResult = validate(request);
-        if(!validationResult.isSuccess()) {
+        if (!validationResult.isSuccess()) {
             return Response.ok(validationResult).build();
         }
         return personService.updateDiseaseHistory(request);
@@ -101,11 +100,11 @@ public class PersonResource {
             @QueryParam("weightUpperLimit") Integer weightUpperLimit,
             @QueryParam("ageLowerLimit") Integer ageLowerLimit,
             @QueryParam("ageUpperLimit") Integer ageUpperLimit,
-            @QueryParam("from")@JsonFormat(shape = JsonFormat.Shape.STRING,
+            @QueryParam("from") @JsonFormat(shape = JsonFormat.Shape.STRING,
                     pattern = "dd/MM/yyyy") Date from,
-            @QueryParam("to")@JsonFormat(shape = JsonFormat.Shape.STRING,
-                    pattern = "dd/MM/yyyy") Date  to
-            ) {
+            @QueryParam("to") @JsonFormat(shape = JsonFormat.Shape.STRING,
+                    pattern = "dd/MM/yyyy") Date to
+    ) {
 
         boolean hasPersonId = Objects.nonNull(personIds) && !personIds.isEmpty();
         boolean hasDiseaseId = Objects.nonNull(diseaseIds) && !diseaseIds.isEmpty();
@@ -123,16 +122,15 @@ public class PersonResource {
         boolean hasAnyCombination = hasPersonIdCombination || hasDiseaseIdCombination || hasNameCombination ||
                 hasWeightCombination || hasAgeCombination || hasDateCombination;
 
-        if(hasAnyCombination) throw new BadRequestException();
+        if (hasAnyCombination) throw new BadRequestException();
         else if (hasPersonId) return personService.getByIds(personIds);
         else if (hasDiseaseId) return personService.getByDiseaseIds(diseaseIds);
-        else if (hasName) return personService.getByName(firstName,lastName);
-        else if (hasAge) return personService.getByAge(ageLowerLimit,ageUpperLimit);
-        else if (hasWeight) return personService.getByWeight(weightLowerLimit,weightUpperLimit);
-        else if (hasDate) return personService.getByDate(from,to);
+        else if (hasName) return personService.getByName(firstName, lastName);
+        else if (hasAge) return personService.getByAge(ageLowerLimit, ageUpperLimit);
+        else if (hasWeight) return personService.getByWeight(weightLowerLimit, weightUpperLimit);
+        else if (hasDate) return personService.getByDate(from, to);
         return personService.getAll();
     }
-
 
 
     private <T> ValidationResult validate(T request) {

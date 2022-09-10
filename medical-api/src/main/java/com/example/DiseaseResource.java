@@ -1,7 +1,6 @@
 package com.example;
 
 import com.example.service.DiseaseService;
-import com.example.service.PersonService;
 import com.example.service.request.CreateDiseaseRequest;
 import com.example.service.result.ValidationResult;
 import org.eclipse.microprofile.openapi.annotations.Operation;
@@ -15,7 +14,6 @@ import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.util.List;
-import java.util.Objects;
 import java.util.Set;
 
 @Path("/disease")
@@ -34,7 +32,7 @@ public class DiseaseResource {
     @Operation(summary = "Creates a disease")
     public Response createDisease(@RequestBody CreateDiseaseRequest request) {
         ValidationResult validationResult = validate(request);
-        if(!validationResult.isSuccess()) {
+        if (!validationResult.isSuccess()) {
             return Response.ok(validationResult).build();
         }
         return diseaseService.createDisease(request);
@@ -69,7 +67,7 @@ public class DiseaseResource {
             @QueryParam("curable") Boolean curable,
             @QueryParam("diseaseId") Long diseaseId
     ) {
-        return diseaseService.updateDiseases(name,curable,diseaseId);
+        return diseaseService.updateDiseases(name, curable, diseaseId);
     }
 
     @DELETE
@@ -85,7 +83,7 @@ public class DiseaseResource {
             @QueryParam("curable") Boolean curable,
             @QueryParam("diseaseIds") List<Long> diseaseIds
     ) {
-        return diseaseService.deleteDiseases(name,curable,diseaseIds);
+        return diseaseService.deleteDiseases(name, curable, diseaseIds);
     }
 
 

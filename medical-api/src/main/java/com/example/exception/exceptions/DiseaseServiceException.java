@@ -2,7 +2,7 @@ package com.example.exception.exceptions;
 
 import javax.ws.rs.core.Response;
 
-public class DiseaseServiceException extends DownstreamServiceException{
+public class DiseaseServiceException extends DownstreamServiceException {
 
 
     public DiseaseServiceException(Response response) {

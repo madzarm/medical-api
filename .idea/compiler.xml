@@ -8,8 +8,8 @@
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
         <module name="medical-api" />
-        <module name="people-api" />
         <module name="diseases-api" />
+        <module name="people-api" />
       </profile>
     </annotationProcessing>
     <bytecodeTargetLevel>

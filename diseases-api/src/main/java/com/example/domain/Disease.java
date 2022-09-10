@@ -1,14 +1,12 @@
 package com.example.domain;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import io.quarkus.hibernate.orm.panache.PanacheEntity;
 import io.quarkus.hibernate.orm.panache.PanacheEntityBase;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import javax.enterprise.context.ApplicationScoped;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -16,8 +14,6 @@ import javax.persistence.Id;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import java.util.List;
-import java.util.Optional;
-
 
 
 @Data
@@ -46,7 +42,7 @@ public class Disease extends PanacheEntityBase {
 
     public static List<Disease> listByNameContaining(String name) {
         String searchInput = "%" + name + "%";
-        return Disease.list("name like ?1",searchInput);
+        return Disease.list("name like ?1", searchInput);
     }
 
     public static List<Disease> listByCurable(boolean curable) {
@@ -60,6 +56,7 @@ public class Disease extends PanacheEntityBase {
     public static int updateByIdWithName(Long id, String name) {
         return Disease.update("name = ?1 where id = ?2", name, id);
     }
+
     public static int updateByIdWithCurable(Long id, Boolean curable) {
         return Disease.update("curable = ?1 where id = ?2", curable, id);
     }
@@ -69,13 +66,15 @@ public class Disease extends PanacheEntityBase {
     }
 
     public static int deleteByIds(List<Long> ids) {
-        return (int)Disease.delete("id in ?1", ids);
+        return (int) Disease.delete("id in ?1", ids);
     }
+
     public static int deleteByName(String name) {
-        return (int)Disease.delete("name like ?1", name);
+        return (int) Disease.delete("name like ?1", name);
     }
+
     public static int deleteByCurable(Boolean curable) {
-        return (int)Disease.delete("curable", curable);
+        return (int) Disease.delete("curable", curable);
     }
 
 }
