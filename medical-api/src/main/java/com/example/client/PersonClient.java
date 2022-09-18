@@ -2,8 +2,6 @@ package com.example.client;
 
 import com.example.service.request.CreatePersonRequest;
 import com.fasterxml.jackson.annotation.JsonFormat;
-import io.smallrye.mutiny.Uni;
-import org.eclipse.microprofile.openapi.annotations.Operation;
 import org.eclipse.microprofile.openapi.annotations.parameters.RequestBody;
 import org.eclipse.microprofile.rest.client.inject.RegisterRestClient;
 
@@ -42,9 +40,9 @@ public interface PersonClient {
             @QueryParam("weightUpperLimit") Integer weightUpperLimit,
             @QueryParam("ageLowerLimit") Integer ageLowerLimit,
             @QueryParam("ageUpperLimit") Integer ageUpperLimit,
-            @QueryParam("from")@JsonFormat(shape = JsonFormat.Shape.STRING,
+            @QueryParam("from") @JsonFormat(shape = JsonFormat.Shape.STRING,
                     pattern = "dd/MM/yyyy") Date from,
-            @QueryParam("to")@JsonFormat(shape = JsonFormat.Shape.STRING,
-                    pattern = "dd/MM/yyyy") Date  to
+            @QueryParam("to") @JsonFormat(shape = JsonFormat.Shape.STRING,
+                    pattern = "dd/MM/yyyy") Date to
     );
 }

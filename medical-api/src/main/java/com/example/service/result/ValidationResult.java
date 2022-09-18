@@ -9,6 +9,9 @@ import java.util.stream.Collectors;
 @ApplicationScoped
 public class ValidationResult {
 
+    private String message;
+    private boolean success;
+
     public ValidationResult(String message) {
         this.success = true;
         this.message = message;
@@ -20,9 +23,6 @@ public class ValidationResult {
                 .map(ConstraintViolation::getMessage)
                 .collect(Collectors.joining(", "));
     }
-
-    private String message;
-    private boolean success;
 
     public String getMessage() {
         return message;

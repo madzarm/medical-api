@@ -4,7 +4,6 @@ import com.example.exception.exceptions.BadCreateMedicalRecordRequestException;
 import com.example.exception.exceptions.BadSearchMedicalRecordRequestException;
 import com.example.service.MedicalRecordService;
 import com.example.service.request.CreateMedicalRecordRequest;
-import com.example.service.request.CreatePersonRequest;
 import com.example.service.request.GetMedicalRecordsRequest;
 import com.example.service.result.ValidationResult;
 import com.fasterxml.jackson.annotation.JsonFormat;
@@ -44,9 +43,9 @@ public class MedicalRecordResource {
             @QueryParam("weightUpperLimit") Integer weightUpperLimit,
             @QueryParam("ageLowerLimit") Integer ageLowerLimit,
             @QueryParam("ageUpperLimit") Integer ageUpperLimit,
-            @QueryParam("from")@JsonFormat(shape = JsonFormat.Shape.STRING,
+            @QueryParam("from") @JsonFormat(shape = JsonFormat.Shape.STRING,
                     pattern = "dd/MM/yyyy") Date from,
-            @QueryParam("to")@JsonFormat(shape = JsonFormat.Shape.STRING,
+            @QueryParam("to") @JsonFormat(shape = JsonFormat.Shape.STRING,
                     pattern = "dd/MM/yyyy") Date to,
             @QueryParam("diseaseName") String diseaseName
     ) {
@@ -55,8 +54,8 @@ public class MedicalRecordResource {
         boolean hasName = Objects.nonNull(firstName) || Objects.nonNull(lastName);
         boolean hasDiseaseName = Objects.nonNull(diseaseName);
 
-        if(hasDiseaseName && (hasPersonId || hasDiseaseId || hasName))
-                throw new BadSearchMedicalRecordRequestException();
+        if (hasDiseaseName && (hasPersonId || hasDiseaseId || hasName))
+            throw new BadSearchMedicalRecordRequestException();
 
         GetMedicalRecordsRequest request = new GetMedicalRecordsRequest(personIds, diseaseIds, firstName, lastName,
                 weightLowerLimit, weightUpperLimit, ageLowerLimit, ageUpperLimit, from, to, diseaseName);
@@ -71,11 +70,11 @@ public class MedicalRecordResource {
     @Transactional
     @Operation(summary = "Creates a medical record.")
     public Response createMedicalRecord(@RequestBody CreateMedicalRecordRequest request) {
-        if(!request.getDiseaseIds().isEmpty() && request.getDiseaseName()!=null)
+        if (!request.getDiseaseIds().isEmpty() && request.getDiseaseName() != null)
             throw new BadCreateMedicalRecordRequestException();
 
         ValidationResult validationResult = validate(request);
-        if(!validationResult.isSuccess()) {
+        if (!validationResult.isSuccess()) {
             return Response.ok(validationResult).build();
         }
         return service.createMedicalRecord(request);

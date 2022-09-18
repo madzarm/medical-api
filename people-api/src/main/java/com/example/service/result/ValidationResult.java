@@ -9,20 +9,19 @@ import java.util.stream.Collectors;
 @ApplicationScoped
 public class ValidationResult {
 
+    private String message;
+    private boolean success;
+
     public ValidationResult(String message) {
         this.success = true;
         this.message = message;
     }
-
     public ValidationResult(Set<? extends ConstraintViolation<?>> violations) {
         this.success = false;
         this.message = violations.stream()
                 .map(ConstraintViolation::getMessage)
                 .collect(Collectors.joining(", "));
     }
-
-    private String message;
-    private boolean success;
 
     public String getMessage() {
         return message;

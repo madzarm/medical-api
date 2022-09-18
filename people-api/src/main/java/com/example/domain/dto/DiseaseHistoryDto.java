@@ -1,6 +1,5 @@
 package com.example.domain.dto;
 
-import com.example.domain.Person;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.AllArgsConstructor;
 import lombok.Builder;

@@ -7,6 +7,7 @@ import org.eclipse.microprofile.rest.client.inject.RestClient;
 import javax.enterprise.context.ApplicationScoped;
 import javax.ws.rs.core.Response;
 import java.util.List;
+
 @ApplicationScoped
 public class DiseaseService {
 
@@ -15,24 +16,23 @@ public class DiseaseService {
 
     public Response createDisease(CreateDiseaseRequest request) {
 
-       return diseaseClient.createDisease(request);
+        return diseaseClient.createDisease(request);
     }
 
     public Response getDiseases(String name, Boolean curable, List<Long> ids) {
 
-        return diseaseClient.getDiseases(name,curable,ids);
+        return diseaseClient.getDiseases(name, curable, ids);
     }
 
     public Response deleteDiseases(String name, Boolean curable, List<Long> ids) {
 
-        return diseaseClient.deleteDiseases(name,curable,ids);
+        return diseaseClient.deleteDiseases(name, curable, ids);
     }
 
     public Response updateDiseases(String name, Boolean curable, Long id) {
 
-        return diseaseClient.updateDiseases(name,curable,id);
+        return diseaseClient.updateDiseases(name, curable, id);
     }
-
 
 
 }
