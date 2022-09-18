@@ -33,24 +33,23 @@ public class MedicalRecordService {
     PersonClient personClient;
 
     public Response getMedicalRecords(GetMedicalRecordsRequest request) {
-        List<Long> diseaseIds = request.getDiseaseIds();
+        List<Long> diseaseIds;
         Response diseaseClientResponse;
         Response personClientResponse;
         List<PersonModel> personModels;
         List<DiseaseModel> diseaseModels;
         SearchMedicalRecordsResult result;
 
-//        personClientResponse =  personClient.getPeople(request.getPersonIds(), request.getDiseaseIds(),
-//                request.getFirstName(), request.getLastName(), request.getWeightLowerLimit(), request.getWeightUpperLimit(),
-//                request.getAgeLowerLimit(), request.getAgeUpperLimit(), request.getFrom(), request.getTo());
-//
-//        if(checkResponseForException(personClientResponse)!=null)
-//            return checkResponseForException(personClientResponse);
+
+        personClientResponse = personClient.getPeople(request.getPersonIds(), request.getDiseaseIds(),
+                request.getFirstName(), request.getLastName(), request.getWeightLowerLimit(), request.getWeightUpperLimit(),
+                request.getAgeLowerLimit(), request.getAgeUpperLimit(), request.getFrom(), request.getTo());
+
+        if(checkResponseForException(personClientResponse)!=null)
+            return checkResponseForException(personClientResponse);
 
         personModels = personClientResponse.readEntity(SearchPeopleModel.class).getPeople();
-
         diseaseIds = getDiseaseIdsFromPersonModels(personModels);
-
         diseaseClientResponse = diseaseClient.getDiseasesByIds(diseaseIds);
 
         if(checkResponseForException(diseaseClientResponse)!=null)

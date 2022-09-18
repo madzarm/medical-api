@@ -18,7 +18,6 @@ import javax.validation.Validator;
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import java.time.LocalDate;
 import java.util.Date;
 import java.util.List;
 import java.util.Objects;
@@ -115,21 +114,21 @@ public class PersonResource {
         boolean hasDate = Objects.nonNull(from) || Objects.nonNull(to);
 
         boolean hasPersonIdCombination = hasPersonId && (hasDiseaseId || hasName || hasWeight || hasAge || hasDate);
-        boolean hasDiseaseIdCombination = hasDiseaseId && (hasPersonId || hasName || hasWeight || hasAge || hasDate);
-        boolean hasNameCombination = hasName && (hasPersonId || hasDiseaseId || hasWeight || hasAge || hasDate);
-        boolean hasWeightCombination = hasWeight && (hasPersonId || hasDiseaseId || hasName || hasAge || hasDate);
-        boolean hasAgeCombination = hasAge && (hasPersonId || hasDiseaseId || hasName || hasWeight || hasDate);
-        boolean hasDateCombination = hasDate && (hasPersonId || hasDiseaseId || hasName || hasWeight || hasAge);
+        boolean hasDiseaseIdCombination = hasDiseaseId && hasPersonId;
+        boolean hasNameCombination = hasName && (hasPersonId || hasWeight || hasAge || hasDate);
+        boolean hasWeightCombination = hasWeight && (hasPersonId || hasName || hasAge || hasDate);
+        boolean hasAgeCombination = hasAge && (hasPersonId || hasName || hasWeight || hasDate);
+        boolean hasDateCombination = hasDate && (hasPersonId || hasName || hasWeight || hasAge);
         boolean hasAnyCombination = hasPersonIdCombination || hasDiseaseIdCombination || hasNameCombination ||
                 hasWeightCombination || hasAgeCombination || hasDateCombination;
 
         if(hasAnyCombination) throw new BadRequestException();
         else if (hasPersonId) return personService.getByIds(personIds);
+        else if (hasName) return personService.getByName(firstName,lastName,diseaseIds);
+        else if (hasAge) return personService.getByAge(ageLowerLimit,ageUpperLimit,diseaseIds);
+        else if (hasWeight) return personService.getByWeight(weightLowerLimit,weightUpperLimit,diseaseIds);
+        else if (hasDate) return personService.getByDate(from,to,diseaseIds);
         else if (hasDiseaseId) return personService.getByDiseaseIds(diseaseIds);
-        else if (hasName) return personService.getByName(firstName,lastName);
-        else if (hasAge) return personService.getByAge(ageLowerLimit,ageUpperLimit);
-        else if (hasWeight) return personService.getByWeight(weightLowerLimit,weightUpperLimit);
-        else if (hasDate) return personService.getByDate(from,to);
         return personService.getAll();
     }
 

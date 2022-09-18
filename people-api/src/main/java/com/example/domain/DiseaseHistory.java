@@ -9,7 +9,7 @@ import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
 import java.time.LocalDate;
-import java.util.Objects;
+import java.util.List;
 
 @Data
 @Entity
@@ -22,10 +22,14 @@ public class DiseaseHistory extends PanacheEntityBase {
     @JsonIgnore
     private Long id;
     @ManyToOne
-    @JoinColumn(name = "person_id")
+    @JoinColumn(name = "personId")
     @JsonIgnore
     private Person person;
     private LocalDate dateDiscovered;
     private Long diseaseId;
 
+
+    public static List<DiseaseHistory> listByPersonId(Long personId) {
+        return DiseaseHistory.list("personId = ?1", personId);
+    }
 }

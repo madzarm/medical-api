@@ -61,60 +61,87 @@ public class PersonService {
         return checkIfEmptyAndConvertToResult(people,true,true);
     }
 
-    public Response getByDiseaseIds(List<Long> personId) {
-        List<Person> people = Person.listByDiseaseIdsIn(personId);
+    public Response getByDiseaseIds(List<Long> diseaseId) {
+        List<Person> people = Person.listByDiseaseIdsIn(diseaseId);
 
         return checkIfEmptyAndConvertToResult(people,true,true);
     }
 
-    public Response getByName(String firstName, String lastName) {
+    public Response getByName(String firstName, String lastName, List<Long> diseaseIds) {
         boolean hasFirstName = Objects.nonNull(firstName);
         boolean hasLastName = Objects.nonNull(lastName);
         boolean hasBoth = hasFirstName && hasLastName;
 
         List<Person> people;
-        if(hasBoth) people = Person.listByFirstAndLastName(firstName,lastName);
-        else if (hasFirstName) people = Person.listByFirstName(firstName);
-        else people = Person.listByLastName(lastName);
+
+        if(!diseaseIds.isEmpty()){
+            if(hasBoth) people = Person.listByFirstAndLastNameAndIdsIn(firstName,lastName,diseaseIds);
+            else if (hasFirstName) people = Person.listByFirstNameAndIdsIn(firstName,diseaseIds);
+            else people = Person.listByLastNameAndIdsIn(lastName,diseaseIds);
+        } else {
+            if(hasBoth) people = Person.listByFirstAndLastName(firstName,lastName);
+            else if (hasFirstName) people = Person.listByFirstName(firstName);
+            else people = Person.listByLastName(lastName);
+        }
 
         return checkIfEmptyAndConvertToResult(people,true,true);
     }
 
-    public Response getByAge(Integer ageLowerLimit, Integer ageUpperLimit) {
+    public Response getByAge(Integer ageLowerLimit, Integer ageUpperLimit, List<Long> diseaseIds) {
         boolean hasLower = Objects.nonNull(ageLowerLimit);
         boolean hasUpper = Objects.nonNull(ageUpperLimit);
         boolean hasBoth = hasLower && hasUpper;
 
         List<Person> people;
-        if(hasBoth) people = Person.listByAgeLowerAndUpper(ageLowerLimit,ageUpperLimit);
-        else if (hasLower) people = Person.listByAgeLower(ageLowerLimit);
-        else people = Person.listByAgeUpper(ageUpperLimit);
+
+        if(!diseaseIds.isEmpty()) {
+            if(hasBoth) people = Person.listByAgeLowerAndUpperAndIdsIn(ageLowerLimit,ageUpperLimit,diseaseIds);
+            else if (hasLower) people = Person.listByAgeLowerAndIdsIn(ageLowerLimit,diseaseIds);
+            else people = Person.listByAgeUpperAndIdsIn(ageUpperLimit,diseaseIds);
+        } else {
+            if(hasBoth) people = Person.listByAgeLowerAndUpper(ageLowerLimit,ageUpperLimit);
+            else if (hasLower) people = Person.listByAgeLower(ageLowerLimit);
+            else people = Person.listByAgeUpper(ageUpperLimit);
+        }
 
         return checkIfEmptyAndConvertToResult(people,true,true);
     }
 
-    public Response getByWeight(Integer weightLowerLimit, Integer weightUpperLimit) {
+    public Response getByWeight(Integer weightLowerLimit, Integer weightUpperLimit, List<Long> diseaseIds) {
         boolean hasLower = Objects.nonNull(weightLowerLimit);
         boolean hasUpper = Objects.nonNull(weightUpperLimit);
         boolean hasBoth = hasLower && hasUpper;
 
         List<Person> people;
-        if(hasBoth) people = Person.listByWeightLowerAndUpper(weightLowerLimit,weightUpperLimit);
-        else if (hasLower) people = Person.listByWeightLower(weightLowerLimit);
-        else people = Person.listByWeightUpper(weightUpperLimit);
+
+        if(!diseaseIds.isEmpty()) {
+            if(hasBoth) people = Person.listByWeightLowerAndUpperAndIdsIn(weightLowerLimit,weightUpperLimit,diseaseIds);
+            else if (hasLower) people = Person.listByWeightLowerAndIdsIn(weightLowerLimit,diseaseIds);
+            else people = Person.listByWeightUpperAndIdsIn(weightUpperLimit,diseaseIds);
+        } else {
+            if(hasBoth) people = Person.listByWeightLowerAndUpper(weightLowerLimit,weightUpperLimit);
+            else if (hasLower) people = Person.listByWeightLower(weightLowerLimit);
+            else people = Person.listByWeightUpper(weightUpperLimit);
+        }
 
         return checkIfEmptyAndConvertToResult(people,true,true);
     }
 
-    public Response getByDate(Date from, Date to) {
+    public Response getByDate(Date from, Date to, List<Long> diseaseIds) {
         boolean hasFrom = Objects.nonNull(from);
         boolean hasTo = Objects.nonNull(to);
         boolean hasBoth = hasFrom && hasTo;
 
         List<Person> people;
-        if(hasBoth) people = Person.listByDateDiscoveredBetween(convertDateToLocalDate(from),convertDateToLocalDate(to));
-        else if (hasFrom) people = Person.listByDateDiscoveredAfter(convertDateToLocalDate(from));
-        else people = Person.listByDateDiscoveredBefore(convertDateToLocalDate(to));
+        if(!diseaseIds.isEmpty()) {
+            if (hasBoth) people = Person.listByDateDiscoveredBetweenAndIdsIn(convertDateToLocalDate(from), convertDateToLocalDate(to),diseaseIds);
+            else if (hasFrom) people = Person.listByDateDiscoveredAfterAndIdsIn(convertDateToLocalDate(from),diseaseIds);
+            else people = Person.listByDateDiscoveredBeforeAndIdsIn(convertDateToLocalDate(to),diseaseIds);
+        } else {
+            if (hasBoth) people = Person.listByDateDiscoveredBetween(convertDateToLocalDate(from), convertDateToLocalDate(to));
+            else if (hasFrom) people = Person.listByDateDiscoveredAfter(convertDateToLocalDate(from));
+            else people = Person.listByDateDiscoveredBefore(convertDateToLocalDate(to));
+        }
 
         return checkIfEmptyAndConvertToResult(people,true,true);
     }
@@ -158,7 +185,6 @@ public class PersonService {
 
         return checkIfEmptyAndConvertToResult(List.of(person),true,true);
     }
-
 
     private Person convertRequestToPerson(CreatePersonRequest request) {
         List<DiseaseHistory> diseaseHistories = new ArrayList<>();
