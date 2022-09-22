@@ -60,6 +60,10 @@ public interface DiseaseClient {
             @QueryParam("diseaseIds") List<Long> diseaseIds
     );
 
+    @PUT
+    @Path("/")
+    @Produces(MediaType.APPLICATION_JSON)
+    @Transactional
     Response updateDiseases(
             @QueryParam("name") String name,
             @QueryParam("curable") Boolean curable,
