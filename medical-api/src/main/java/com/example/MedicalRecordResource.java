@@ -5,30 +5,27 @@ import com.example.exception.exceptions.BadSearchMedicalRecordRequestException;
 import com.example.service.MedicalRecordService;
 import com.example.service.request.CreateMedicalRecordRequest;
 import com.example.service.request.GetMedicalRecordsRequest;
-import com.example.service.result.ValidationResult;
 import com.fasterxml.jackson.annotation.JsonFormat;
+import org.acme.greeting.extension.runtime.Log;
 import org.eclipse.microprofile.openapi.annotations.Operation;
 import org.eclipse.microprofile.openapi.annotations.parameters.RequestBody;
 
 import javax.inject.Inject;
 import javax.transaction.Transactional;
-import javax.validation.ConstraintViolation;
-import javax.validation.Validator;
+import javax.validation.Valid;
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.util.Date;
 import java.util.List;
 import java.util.Objects;
-import java.util.Set;
 
 @Path("/medicalRecord")
+@Log
 public class MedicalRecordResource {
 
     @Inject
     MedicalRecordService service;
-    @Inject
-    Validator validator;
 
     @GET
     @Path("/")
@@ -62,32 +59,16 @@ public class MedicalRecordResource {
 
         return service.getMedicalRecords(request);
     }
-
     @POST
     @Path("/")
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)
     @Transactional
     @Operation(summary = "Creates a medical record.")
-    public Response createMedicalRecord(@RequestBody CreateMedicalRecordRequest request) {
+    public Response createMedicalRecord(@RequestBody @Valid CreateMedicalRecordRequest request) {
         if (!request.getDiseaseIds().isEmpty() && request.getDiseaseName() != null)
             throw new BadCreateMedicalRecordRequestException();
 
-        ValidationResult validationResult = validate(request);
-        if (!validationResult.isSuccess()) {
-            return Response.ok(validationResult).build();
-        }
         return service.createMedicalRecord(request);
-    }
-
-
-    private <T> ValidationResult validate(T request) {
-        Set<ConstraintViolation<T>> violations = validator.validate(request);
-
-        if (violations.isEmpty()) {
-            return new ValidationResult("Request is valid! It was validated by manual validation.");
-        } else {
-            return new ValidationResult(violations);
-        }
     }
 }
