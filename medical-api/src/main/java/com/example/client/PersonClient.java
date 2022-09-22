@@ -2,6 +2,7 @@ package com.example.client;
 
 import com.example.service.request.CreatePersonRequest;
 import com.fasterxml.jackson.annotation.JsonFormat;
+import org.acme.response.validation.extension.runtime.ValidateResponse;
 import org.eclipse.microprofile.openapi.annotations.parameters.RequestBody;
 import org.eclipse.microprofile.rest.client.inject.RegisterRestClient;
 
@@ -14,6 +15,7 @@ import java.util.List;
 
 @RegisterRestClient(configKey = "person-client")
 @Path("/person")
+@ValidateResponse(code = 202)
 public interface PersonClient {
 
     @GET

@@ -4,6 +4,7 @@ package com.example.exception;
 import com.example.exception.exceptions.BadCreateMedicalRecordRequestException;
 import com.example.exception.exceptions.BadSearchMedicalRecordRequestException;
 import com.fasterxml.jackson.core.JsonParseException;
+import org.acme.response.validation.extension.runtime.ResponseException;
 
 import javax.ws.rs.core.Response;
 import javax.ws.rs.ext.Provider;
@@ -24,6 +25,10 @@ public class ExceptionMapper implements javax.ws.rs.ext.ExceptionMapper<Exceptio
         }
         if (e instanceof BadCreateMedicalRecordRequestException) {
             response = new ExceptionResponse("192", e.getMessage());
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(response).build();
+        }
+        if(e instanceof ResponseException) {
+            response = new ExceptionResponse((((ResponseException) e).getCode()), e.getMessage());
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(response).build();
         }
         response = new ExceptionResponse("123", "Exception has occurred!");

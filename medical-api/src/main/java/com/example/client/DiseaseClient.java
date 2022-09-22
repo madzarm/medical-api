@@ -1,6 +1,7 @@
 package com.example.client;
 
 import com.example.service.request.CreateDiseaseRequest;
+import org.acme.response.validation.extension.runtime.ValidateResponse;
 import org.eclipse.microprofile.openapi.annotations.parameters.RequestBody;
 import org.eclipse.microprofile.rest.client.inject.RegisterRestClient;
 
@@ -12,6 +13,7 @@ import java.util.List;
 
 @RegisterRestClient(configKey = "disease-client")
 @Path("/disease")
+@ValidateResponse(code = 202)
 public interface DiseaseClient {
 
     @GET
