@@ -10,34 +10,12 @@ import javax.ws.rs.ext.Provider;
 public class ExceptionMapper implements javax.ws.rs.ext.ExceptionMapper<Exception> {
     @Override
     public Response toResponse(Exception e) {
-        ExceptionResponse response;
-
-        if (e instanceof EntityNotFoundException) {
-            response = new ExceptionResponse("113", e.getMessage());
-            return Response.status(202).entity(response).build();
-        }
-        if (e instanceof DatabaseEmptyException) {
-            response = new ExceptionResponse("151", e.getMessage());
-            return Response.status(202).entity(response).build();
-        }
-        if (e instanceof BadRequestException) {
-            response = new ExceptionResponse("121", e.getMessage());
-            return Response.status(202).entity(response).build();
-        }
-        if (e instanceof JsonParseException) {
-            response = new ExceptionResponse("199", e.getMessage());
-            return Response.status(202).entity(response).build();
-        }
-        if (e instanceof DiseaseAlreadyExistsException) {
-            response = new ExceptionResponse("191", e.getMessage());
-            return Response.status(202).entity(response).build();
-        }
-        if (e instanceof DiseaseHistoryDoesNotExistException) {
-            response = new ExceptionResponse("129", e.getMessage());
-            return Response.status(202).entity(response).build();
-        }
-        response = new ExceptionResponse("123", "Exception has occurred!");
         e.printStackTrace();
-        return Response.status(202).entity(response).build();
+        ExceptionResponse response;
+        int generalStatus = 500;
+        String generalCode = "PERSON-SERVICE";
+
+        response = new ExceptionResponse(generalCode, e.getMessage());
+        return Response.status(generalStatus).entity(response).build();
     }
 }
