@@ -1,8 +1,6 @@
 package com.example.client;
 
 import com.example.service.request.CreatePersonRequest;
-import com.fasterxml.jackson.annotation.JsonFormat;
-import org.acme.response.validation.extension.runtime.ValidateResponse;
 import org.eclipse.microprofile.openapi.annotations.parameters.RequestBody;
 import org.eclipse.microprofile.rest.client.inject.RegisterRestClient;
 
@@ -10,12 +8,10 @@ import javax.transaction.Transactional;
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import java.util.Date;
 import java.util.List;
 
 @RegisterRestClient(configKey = "person-client")
 @Path("/person")
-@ValidateResponse(code = 202)
 public interface PersonClient {
 
     @GET
@@ -42,9 +38,7 @@ public interface PersonClient {
             @QueryParam("weightUpperLimit") Integer weightUpperLimit,
             @QueryParam("ageLowerLimit") Integer ageLowerLimit,
             @QueryParam("ageUpperLimit") Integer ageUpperLimit,
-            @QueryParam("from") @JsonFormat(shape = JsonFormat.Shape.STRING,
-                    pattern = "dd/MM/yyyy") Date from,
-            @QueryParam("to") @JsonFormat(shape = JsonFormat.Shape.STRING,
-                    pattern = "dd/MM/yyyy") Date to
+            @QueryParam("from") String from,
+            @QueryParam("to") String to
     );
 }
