@@ -18,10 +18,9 @@ import org.eclipse.microprofile.rest.client.inject.RestClient;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.ws.rs.core.Response;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @ApplicationScoped
@@ -33,31 +32,22 @@ public class MedicalRecordService {
     PersonClient personClient;
 
     public Response getMedicalRecords(GetMedicalRecordsRequest request) {
-        List<Long> diseaseIds;
-        Response diseaseClientResponse;
-        Response personClientResponse;
-        List<PersonModel> personModels;
-        List<DiseaseModel> diseaseModels;
-        SearchMedicalRecordsResult result;
 
+        String from = convertDateToString(request.getFrom());
+        String to = convertDateToString(request.getTo());
 
-        personClientResponse = personClient.getPeople(request.getPersonIds(), request.getDiseaseIds(),
+        Response personClientResponse = personClient.getPeople(request.getPersonIds(), request.getDiseaseIds(),
                 request.getFirstName(), request.getLastName(), request.getWeightLowerLimit(), request.getWeightUpperLimit(),
-                request.getAgeLowerLimit(), request.getAgeUpperLimit(), request.getFrom(), request.getTo());
+                request.getAgeLowerLimit(), request.getAgeUpperLimit(), from, to);
 
-        if(checkResponseForException(personClientResponse)!=null)
-            return checkResponseForException(personClientResponse);
+        List<PersonModel> personModels = personClientResponse.readEntity(SearchPeopleModel.class).getPeople();
+        List<Long> diseaseIds = getDiseaseIdsFromPersonModels(personModels);
 
-        personModels = personClientResponse.readEntity(SearchPeopleModel.class).getPeople();
-        diseaseIds = getDiseaseIdsFromPersonModels(personModels);
-        diseaseClientResponse = diseaseClient.getDiseasesByIds(diseaseIds);
+        Response diseaseClientResponse = diseaseClient.getDiseasesByIds(diseaseIds);
 
-        if(checkResponseForException(diseaseClientResponse)!=null)
-            return checkResponseForException(diseaseClientResponse);
+        List<DiseaseModel> diseaseModels = diseaseClientResponse.readEntity(SearchDiseasesModel.class).getDiseases();
 
-        diseaseModels = diseaseClientResponse.readEntity(SearchDiseasesModel.class).getDiseases();
-
-        result = mapToMedicalRecordResult(diseaseModels,personModels);
+        SearchMedicalRecordsResult result = mapToMedicalRecordResult(diseaseModels,personModels);
 
         return Response.ok().entity(result).build();
     }
@@ -72,6 +62,7 @@ public class MedicalRecordService {
         SearchMedicalRecordsResult result;
 
         if(!request.getDiseaseIds().isEmpty()) {
+
             responseFromDiseaseClient = diseaseClient.getDiseasesByIds(request.getDiseaseIds());
         } else if (request.getDiseaseName()!=null) {
             responseFromDiseaseClient = diseaseClient.getDiseasesByName(request.getDiseaseName());
@@ -172,5 +163,12 @@ public class MedicalRecordService {
         }));
 
         return distinctLongs;
+    }
+
+    private String convertDateToString(Date date) {
+        if(date == null)
+            return null;
+        DateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy");
+        return dateFormat.format(date);
     }
 }
