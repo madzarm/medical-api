@@ -1,31 +1,25 @@
 package com.example;
 
-import com.example.domain.Disease;
 import com.example.exception.exceptions.BadRequestException;
 import com.example.exception.exceptions.BadSearchDiseaseException;
 import com.example.service.DiseaseService;
 import com.example.service.request.CreateDiseaseRequest;
-import com.example.service.result.ValidationResult;
 import org.eclipse.microprofile.openapi.annotations.Operation;
 import org.eclipse.microprofile.openapi.annotations.parameters.RequestBody;
 
 import javax.inject.Inject;
-import javax.transaction.Transactional;
-import javax.validation.ConstraintViolation;
+import javax.transaction.Transactional;;
 
-import javax.validation.Validator;
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.util.List;
 import java.util.Objects;
-import java.util.Set;
 
 @Path("/disease")
 public class DiseaseResource {
 
-    @Inject
-    Validator validator;
+
     @Inject
     DiseaseService diseaseService;
 
@@ -36,10 +30,6 @@ public class DiseaseResource {
     @Transactional
     @Operation(summary = "Creates a disease")
     public Response createDisease(@RequestBody CreateDiseaseRequest request) {
-        ValidationResult validationResult = validate(request);
-        if(!validationResult.isSuccess()) {
-            return Response.ok(validationResult).build();
-        }
         return diseaseService.createDisease(request);
     }
 
@@ -128,14 +118,4 @@ public class DiseaseResource {
         return diseaseService.deleteAllDiseases();
     }
 
-
-    private ValidationResult validate(CreateDiseaseRequest request) {
-        Set<ConstraintViolation<CreateDiseaseRequest>> violations = validator.validate(request);
-
-        if (violations.isEmpty()) {
-            return new ValidationResult("Request is valid! It was validated by manual validation.");
-        } else {
-            return new ValidationResult(violations);
-        }
-    }
 }

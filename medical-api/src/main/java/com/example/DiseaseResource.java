@@ -2,21 +2,18 @@ package com.example;
 
 import com.example.service.DiseaseService;
 import com.example.service.request.CreateDiseaseRequest;
-import org.acme.greeting.extension.runtime.Log;
 import org.eclipse.microprofile.openapi.annotations.Operation;
 import org.eclipse.microprofile.openapi.annotations.parameters.RequestBody;
 
 import javax.inject.Inject;
 import javax.transaction.Transactional;
 import javax.validation.Valid;
-import javax.validation.Validator;
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.util.List;
 
 @Path("/disease")
-@Log
 public class DiseaseResource {
     @Inject
     DiseaseService diseaseService;
