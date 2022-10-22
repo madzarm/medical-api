@@ -5,8 +5,6 @@ import com.example.exception.exceptions.BadSearchMedicalRecordRequestException;
 import com.example.service.MedicalRecordService;
 import com.example.service.request.CreateMedicalRecordRequest;
 import com.example.service.request.GetMedicalRecordsRequest;
-import com.fasterxml.jackson.annotation.JsonFormat;
-import org.acme.greeting.extension.runtime.Log;
 import org.eclipse.microprofile.openapi.annotations.Operation;
 import org.eclipse.microprofile.openapi.annotations.parameters.RequestBody;
 
@@ -21,7 +19,6 @@ import java.util.List;
 import java.util.Objects;
 
 @Path("/medicalRecord")
-@Log
 public class MedicalRecordResource {
 
     @Inject
@@ -40,10 +37,8 @@ public class MedicalRecordResource {
             @QueryParam("weightUpperLimit") Integer weightUpperLimit,
             @QueryParam("ageLowerLimit") Integer ageLowerLimit,
             @QueryParam("ageUpperLimit") Integer ageUpperLimit,
-            @QueryParam("from") @JsonFormat(shape = JsonFormat.Shape.STRING,
-                    pattern = "dd/MM/yyyy") Date from,
-            @QueryParam("to") @JsonFormat(shape = JsonFormat.Shape.STRING,
-                    pattern = "dd/MM/yyyy") Date to,
+            @QueryParam("from") Date from,
+            @QueryParam("to") Date to,
             @QueryParam("diseaseName") String diseaseName
     ) {
         boolean hasPersonId = Objects.nonNull(personIds) && !personIds.isEmpty();
