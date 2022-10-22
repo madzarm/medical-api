@@ -4,6 +4,7 @@ import com.example.domain.DiseaseHistory;
 import com.example.domain.Person;
 import com.example.domain.dto.DiseaseHistoryDto;
 import com.example.domain.dto.PersonDto;
+import com.example.exception.exceptions.DateParseException;
 import com.example.exception.exceptions.DiseaseAlreadyExistsException;
 import com.example.exception.exceptions.DiseaseHistoryDoesNotExistException;
 import com.example.exception.exceptions.EntityNotFoundException;
@@ -15,6 +16,7 @@ import com.example.service.result.SearchPeopleResult;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.ws.rs.core.Response;
+import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.util.*;
@@ -127,20 +129,23 @@ public class PersonService {
         return checkIfEmptyAndConvertToResult(people,true,true);
     }
 
-    public Response getByDate(Date from, Date to, List<Long> diseaseIds) {
+    public Response getByDate(String from, String to, List<Long> diseaseIds) {
         boolean hasFrom = Objects.nonNull(from);
         boolean hasTo = Objects.nonNull(to);
         boolean hasBoth = hasFrom && hasTo;
 
+        Date dateFrom = convertStringToDate(from);
+        Date dateTo = convertStringToDate(to);
+
         List<Person> people;
         if(!diseaseIds.isEmpty()) {
-            if (hasBoth) people = Person.listByDateDiscoveredBetweenAndIdsIn(convertDateToLocalDate(from), convertDateToLocalDate(to),diseaseIds);
-            else if (hasFrom) people = Person.listByDateDiscoveredAfterAndIdsIn(convertDateToLocalDate(from),diseaseIds);
-            else people = Person.listByDateDiscoveredBeforeAndIdsIn(convertDateToLocalDate(to),diseaseIds);
+            if (hasBoth) people = Person.listByDateDiscoveredBetweenAndIdsIn(convertDateToLocalDate(dateFrom), convertDateToLocalDate(dateTo),diseaseIds);
+            else if (hasFrom) people = Person.listByDateDiscoveredAfterAndIdsIn(convertDateToLocalDate(dateFrom),diseaseIds);
+            else people = Person.listByDateDiscoveredBeforeAndIdsIn(convertDateToLocalDate(dateTo),diseaseIds);
         } else {
-            if (hasBoth) people = Person.listByDateDiscoveredBetween(convertDateToLocalDate(from), convertDateToLocalDate(to));
-            else if (hasFrom) people = Person.listByDateDiscoveredAfter(convertDateToLocalDate(from));
-            else people = Person.listByDateDiscoveredBefore(convertDateToLocalDate(to));
+            if (hasBoth) people = Person.listByDateDiscoveredBetween(convertDateToLocalDate(dateFrom), convertDateToLocalDate(dateTo));
+            else if (hasFrom) people = Person.listByDateDiscoveredAfter(convertDateToLocalDate(dateFrom));
+            else people = Person.listByDateDiscoveredBefore(convertDateToLocalDate(dateTo));
         }
 
         return checkIfEmptyAndConvertToResult(people,true,true);
@@ -278,5 +283,15 @@ public class PersonService {
             });
         }
         return contains.get();
+    }
+
+    private Date convertStringToDate(String date) {
+        if(date == null)
+            return null;
+        try {
+            return new SimpleDateFormat("dd/MM/yyyy").parse(date);
+        } catch (Exception e) {
+            throw new DateParseException();
+        }
     }
 }
