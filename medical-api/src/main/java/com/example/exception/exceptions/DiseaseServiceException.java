@@ -2,11 +2,11 @@ package com.example.exception.exceptions;
 
 import javax.ws.rs.core.Response;
 
-public class DiseaseServiceException extends DownstreamServiceException {
+public class DiseaseServiceException extends RuntimeException {
 
 
-    public DiseaseServiceException(Response response) {
-        super("Exception has occurred in a Disease service!", response);
+    public DiseaseServiceException() {
+        super("Exception has occurred in a Disease service!");
     }
 
 }
