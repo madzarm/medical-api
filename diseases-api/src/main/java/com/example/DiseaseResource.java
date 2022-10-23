@@ -80,8 +80,9 @@ public class DiseaseResource {
         boolean hasId = Objects.nonNull(diseaseId);
         boolean hasOnlyId = hasId && !hasName && !hasCurable;
         boolean hasOnlyNameButNoCurable = !hasId && hasName && !hasCurable;
+        boolean hasOnlyCurable = hasCurable && !(hasId ||hasName);
 
-        if(hasOnlyId || hasOnlyNameButNoCurable)
+        if(hasOnlyId || hasOnlyNameButNoCurable || hasOnlyCurable)
             throw new BadRequestException();
         else if (hasId)
             return diseaseService.updateDiseaseById(diseaseId,name,curable);

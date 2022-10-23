@@ -33,19 +33,33 @@ public class MedicalRecordService {
 
     public Response getMedicalRecords(GetMedicalRecordsRequest request) {
 
+        Response diseaseClientResponse;
+        Response personClientResponse;
+        List<DiseaseModel> diseaseModels;
+        List<PersonModel> personModels;
+
         String from = convertDateToString(request.getFrom());
         String to = convertDateToString(request.getTo());
 
-        Response personClientResponse = personClient.getPeople(request.getPersonIds(), request.getDiseaseIds(),
-                request.getFirstName(), request.getLastName(), request.getWeightLowerLimit(), request.getWeightUpperLimit(),
-                request.getAgeLowerLimit(), request.getAgeUpperLimit(), from, to);
+        if(request.getDiseaseName()!=null){
+            diseaseClientResponse = diseaseClient.getDiseasesByName(request.getDiseaseName());
+            diseaseModels = diseaseClientResponse.readEntity(SearchDiseasesModel.class).getDiseases();
+            List<Long> diseaseIds = diseaseModels.stream().map(DiseaseModel::getId).collect(Collectors.toList());
 
-        List<PersonModel> personModels = personClientResponse.readEntity(SearchPeopleModel.class).getPeople();
+            personClientResponse = personClient.getPeople(request.getPersonIds(), diseaseIds, request.getFirstName(),
+                    request.getLastName(), request.getWeightLowerLimit(), request.getWeightUpperLimit(),
+                    request.getAgeLowerLimit(), request.getAgeUpperLimit(), from, to);
+        } else {
+            personClientResponse = personClient.getPeople(request.getPersonIds(), request.getDiseaseIds(),
+                    request.getFirstName(), request.getLastName(), request.getWeightLowerLimit(), request.getWeightUpperLimit(),
+                    request.getAgeLowerLimit(), request.getAgeUpperLimit(), from, to);
+        }
+
+        personModels = personClientResponse.readEntity(SearchPeopleModel.class).getPeople();
         List<Long> diseaseIds = getDiseaseIdsFromPersonModels(personModels);
 
-        Response diseaseClientResponse = diseaseClient.getDiseasesByIds(diseaseIds);
-
-        List<DiseaseModel> diseaseModels = diseaseClientResponse.readEntity(SearchDiseasesModel.class).getDiseases();
+        diseaseClientResponse = diseaseClient.getDiseasesByIds(diseaseIds);
+        diseaseModels = diseaseClientResponse.readEntity(SearchDiseasesModel.class).getDiseases();
 
         SearchMedicalRecordsResult result = mapToMedicalRecordResult(diseaseModels,personModels);
 
