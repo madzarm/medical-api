@@ -7,10 +7,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
+import javax.persistence.*;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import java.util.List;
@@ -19,16 +16,20 @@ import java.util.List;
 @Data
 @Entity
 @Builder
+@Table(name = "disease")
 @NoArgsConstructor
 @AllArgsConstructor
 public class Disease extends PanacheEntityBase {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @JsonIgnore
     private Long id;
-    @NotBlank(message = "Name may not be blank!")
+
+    @Column(name = "name")
     private String name;
-    @NotNull(message = "Curable may not be null!")
+
+    @Column(name = "curable")
     private Boolean curable;
 
     public Disease(String name, boolean curable) {

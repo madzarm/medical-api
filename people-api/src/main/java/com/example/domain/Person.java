@@ -15,18 +15,28 @@ import java.util.List;
 @Data
 @Entity
 @Builder
+@Table(name = "person")
 @NoArgsConstructor
 @AllArgsConstructor
 public class Person extends PanacheEntityBase {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(nullable = false)
     @JsonIgnore
     private Long id;
+
+    @Column(name = "first_name", nullable = false)
     private String firstName;
+
+    @Column(name = "last_name", nullable = false)
     private String lastName;
+
+    @Column(name = "weight", nullable = false)
     private int weight;
+
+    @Column(name = "age", nullable = false)
     private int age;
+
     @OneToMany(mappedBy = "person",cascade = {CascadeType.REMOVE, CascadeType.PERSIST}, orphanRemoval = true)
     private List<DiseaseHistory> diseaseHistories = new ArrayList<>();
 

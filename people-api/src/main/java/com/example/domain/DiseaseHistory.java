@@ -14,18 +14,25 @@ import java.util.List;
 @Data
 @Entity
 @Builder
+@Table(name = "disease_history")
 @NoArgsConstructor
 @AllArgsConstructor
 public class DiseaseHistory extends PanacheEntityBase {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @JsonIgnore
     private Long id;
+
     @ManyToOne
-    @JoinColumn(name = "personId")
+    @JoinColumn(name = "person_Id")
     @JsonIgnore
     private Person person;
+
+    @Column(name = "date_discovered", nullable = false)
     private LocalDate dateDiscovered;
+
+    @Column(name = "disease_id", nullable = false)
     private Long diseaseId;
 
 

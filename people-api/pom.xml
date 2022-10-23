@@ -51,13 +51,18 @@
             <artifactId>rest-assured</artifactId>
             <scope>test</scope>
         </dependency>
+
         <dependency>
             <groupId>io.quarkus</groupId>
-            <artifactId>quarkus-jdbc-h2</artifactId>
+            <artifactId>quarkus-jdbc-mysql</artifactId>
         </dependency>
         <dependency>
             <groupId>io.quarkus</groupId>
             <artifactId>quarkus-hibernate-orm-panache</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>io.quarkus</groupId>
+            <artifactId>quarkus-hibernate-orm</artifactId>
         </dependency>
         <dependency>
             <groupId>io.quarkus</groupId>
@@ -68,10 +73,6 @@
             <artifactId>lombok</artifactId>
             <version>1.18.24</version>
             <scope>provided</scope>
-        </dependency>
-        <dependency>
-            <groupId>io.quarkus</groupId>
-            <artifactId>quarkus-hibernate-validator</artifactId>
         </dependency>
     </dependencies>
     <build>
