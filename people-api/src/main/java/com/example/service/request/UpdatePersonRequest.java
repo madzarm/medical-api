@@ -1,17 +1,16 @@
 package com.example.service.request;
 
+import com.example.exception.validation.UpdatePersonRequestValidation;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import javax.validation.constraints.Max;
-import javax.validation.constraints.Min;
-import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Pattern;
+import javax.validation.constraints.*;
 
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
+@UpdatePersonRequestValidation
 public class UpdatePersonRequest {
 
     @NotNull(message = "PersonId may not be null!")
@@ -30,4 +29,9 @@ public class UpdatePersonRequest {
     @Max(value = 150, message = "Age must be less than 0!")
     @Min(value = 0, message = "Age must be more than 0!")
     private Integer age;
+
+    private Integer diseaseHistoryId;
+    private String dateDiscovered;
+    private Integer diseaseId;
+
 }

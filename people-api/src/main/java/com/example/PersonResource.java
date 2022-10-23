@@ -11,6 +11,7 @@ import org.eclipse.microprofile.openapi.annotations.parameters.RequestBody;
 
 import javax.inject.Inject;
 import javax.transaction.Transactional;
+import javax.validation.Valid;
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
@@ -39,9 +40,19 @@ public class PersonResource {
     @Consumes(MediaType.APPLICATION_JSON)
     @Transactional
     @Operation(summary = "updates a person by id")
-    public Response updatePerson(@RequestBody UpdatePersonRequest request) {
+    public Response updatePerson(@Valid @RequestBody UpdatePersonRequest request) {
+        System.out.println("Updating...");
         return personService.updatePerson(request);
     }
+
+//    {
+//        personId:,
+//        age,
+//        weight,
+//        name,
+//        surname,
+//        diseasehistoryId (ako ga ima mora imati i dateDiscovered: ili diseaseId)
+//    }
 
     @POST
     @Path("/diseaseHistory")
