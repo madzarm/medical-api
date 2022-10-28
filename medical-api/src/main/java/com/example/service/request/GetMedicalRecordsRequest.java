@@ -4,7 +4,6 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.util.Date;
 import java.util.List;
 
 @Data
@@ -19,7 +18,7 @@ public class GetMedicalRecordsRequest {
     private Integer weightUpperLimit;
     private Integer ageLowerLimit;
     private Integer ageUpperLimit;
-    private Date from;
-    private Date to;
+    private String from;
+    private String to;
     private String diseaseName;
 }

@@ -38,8 +38,6 @@ public class MedicalRecordService {
         List<DiseaseModel> diseaseModels;
         List<PersonModel> personModels;
 
-        String from = convertDateToString(request.getFrom());
-        String to = convertDateToString(request.getTo());
 
         if(request.getDiseaseName()!=null){
             diseaseClientResponse = diseaseClient.getDiseasesByName(request.getDiseaseName());
@@ -48,11 +46,11 @@ public class MedicalRecordService {
 
             personClientResponse = personClient.getPeople(request.getPersonIds(), diseaseIds, request.getFirstName(),
                     request.getLastName(), request.getWeightLowerLimit(), request.getWeightUpperLimit(),
-                    request.getAgeLowerLimit(), request.getAgeUpperLimit(), from, to);
+                    request.getAgeLowerLimit(), request.getAgeUpperLimit(), request.getFrom(), request.getTo());
         } else {
             personClientResponse = personClient.getPeople(request.getPersonIds(), request.getDiseaseIds(),
                     request.getFirstName(), request.getLastName(), request.getWeightLowerLimit(), request.getWeightUpperLimit(),
-                    request.getAgeLowerLimit(), request.getAgeUpperLimit(), from, to);
+                    request.getAgeLowerLimit(), request.getAgeUpperLimit(), request.getFrom(), request.getTo());
         }
 
         personModels = personClientResponse.readEntity(SearchPeopleModel.class).getPeople();

@@ -2,9 +2,7 @@ package com.example;
 
 import com.example.exception.exceptions.BadRequestException;
 import com.example.service.PersonService;
-import com.example.service.request.AddDiseaseHistoriesRequest;
 import com.example.service.request.CreatePersonRequest;
-import com.example.service.request.UpdateDiseaseHistoryRequest;
 import com.example.service.request.UpdatePersonRequest;
 import org.eclipse.microprofile.openapi.annotations.Operation;
 import org.eclipse.microprofile.openapi.annotations.parameters.RequestBody;
@@ -12,6 +10,9 @@ import org.eclipse.microprofile.openapi.annotations.parameters.RequestBody;
 import javax.inject.Inject;
 import javax.transaction.Transactional;
 import javax.validation.Valid;
+import javax.validation.constraints.Max;
+import javax.validation.constraints.Min;
+import javax.validation.constraints.Pattern;
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
@@ -41,37 +42,7 @@ public class PersonResource {
     @Transactional
     @Operation(summary = "updates a person by id")
     public Response updatePerson(@Valid @RequestBody UpdatePersonRequest request) {
-        System.out.println("Updating...");
         return personService.updatePerson(request);
-    }
-
-//    {
-//        personId:,
-//        age,
-//        weight,
-//        name,
-//        surname,
-//        diseasehistoryId (ako ga ima mora imati i dateDiscovered: ili diseaseId)
-//    }
-
-    @POST
-    @Path("/diseaseHistory")
-    @Produces(MediaType.APPLICATION_JSON)
-    @Consumes(MediaType.APPLICATION_JSON)
-    @Transactional
-    @Operation(summary = "Adds disease histories to a person")
-    public Response addDiseaseHistories(@RequestBody AddDiseaseHistoriesRequest request) {
-        return personService.addDiseaseHistory(request);
-    }
-
-    @PUT
-    @Path("/diseaseHistory")
-    @Produces(MediaType.APPLICATION_JSON)
-    @Consumes(MediaType.APPLICATION_JSON)
-    @Transactional
-    @Operation(summary = "Updates diseaseHistories' DiseaseId")
-    public Response updateDiseaseHistory(@RequestBody UpdateDiseaseHistoryRequest request) {
-        return personService.updateDiseaseHistory(request);
     }
 
     @GET
@@ -81,12 +52,12 @@ public class PersonResource {
     public Response getPeople(
             @QueryParam("personIds") List<Long> personIds,
             @QueryParam("diseaseIds") List<Long> diseaseIds,
-            @QueryParam("firstName") String firstName,
-            @QueryParam("lastName") String lastName,
-            @QueryParam("weightLowerLimit") Integer weightLowerLimit,
-            @QueryParam("weightUpperLimit") Integer weightUpperLimit,
-            @QueryParam("ageLowerLimit") Integer ageLowerLimit,
-            @QueryParam("ageUpperLimit") Integer ageUpperLimit,
+            @QueryParam("firstName") @Pattern(regexp = "^[A-Za-z]+$", message = "You may only use alphabetic characters [a-zA-z]") String firstName,
+            @QueryParam("lastName") @Pattern(regexp = "^[A-Za-z]+$", message = "You may only use alphabetic characters [a-zA-z]") String lastName,
+            @QueryParam("weightLowerLimit") @Min(0) @Max(500) Integer weightLowerLimit,
+            @QueryParam("weightUpperLimit") @Min(0) @Max(500) Integer weightUpperLimit,
+            @QueryParam("ageLowerLimit") @Min(0) @Max(150) Integer ageLowerLimit,
+            @QueryParam("ageUpperLimit") @Min(0) @Max(150) Integer ageUpperLimit,
             @QueryParam("from") String from,
             @QueryParam("to") String to
             ) {

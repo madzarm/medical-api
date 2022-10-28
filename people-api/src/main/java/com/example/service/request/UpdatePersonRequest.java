@@ -1,11 +1,13 @@
 package com.example.service.request;
 
 import com.example.exception.validation.UpdatePersonRequestValidation;
+import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import javax.validation.constraints.*;
+import java.time.LocalDate;
 
 @Data
 @NoArgsConstructor
@@ -30,8 +32,13 @@ public class UpdatePersonRequest {
     @Min(value = 0, message = "Age must be more than 0!")
     private Integer age;
 
-    private Integer diseaseHistoryId;
-    private String dateDiscovered;
-    private Integer diseaseId;
+    @Positive
+    private Long diseaseHistoryId;
+
+    @JsonFormat(pattern = "dd-MM-yyyy")
+    private LocalDate dateDiscovered;
+
+    @Positive
+    private Long diseaseId;
 
 }

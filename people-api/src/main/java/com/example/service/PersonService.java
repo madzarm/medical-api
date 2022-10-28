@@ -5,12 +5,8 @@ import com.example.domain.Person;
 import com.example.domain.dto.DiseaseHistoryDto;
 import com.example.domain.dto.PersonDto;
 import com.example.exception.exceptions.DateParseException;
-import com.example.exception.exceptions.DiseaseAlreadyExistsException;
-import com.example.exception.exceptions.DiseaseHistoryDoesNotExistException;
 import com.example.exception.exceptions.EntityNotFoundException;
-import com.example.service.request.AddDiseaseHistoriesRequest;
 import com.example.service.request.CreatePersonRequest;
-import com.example.service.request.UpdateDiseaseHistoryRequest;
 import com.example.service.request.UpdatePersonRequest;
 import com.example.service.result.SearchPeopleResult;
 
@@ -20,7 +16,6 @@ import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.util.*;
-import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Collectors;
 
 @ApplicationScoped
@@ -34,22 +29,6 @@ public class PersonService {
         SearchPeopleResult result = new SearchPeopleResult(personDtos);
 
         return Response.status(201).entity(result).build();
-    }
-
-    public Response addDiseaseHistory(AddDiseaseHistoriesRequest request) {
-        Optional<Person> personOptional = Person.findByIdOptional(request.getPersonId());
-        if(personOptional.isEmpty())
-            throw new EntityNotFoundException();
-
-        Person person = personOptional.get();
-        List<DiseaseHistory> diseaseHistories = convertRequestToDiseaseHistory(request);
-        if(checkIfPersonAlreadyContainsThatDiseaseHistories(person,diseaseHistories))
-            throw new DiseaseAlreadyExistsException();
-
-        person.addDiseaseHistories(diseaseHistories);
-        person.persist();
-
-        return checkIfEmptyAndConvertToResult(List.of(person),true,true);
     }
 
     public Response getAll() {
@@ -134,18 +113,18 @@ public class PersonService {
         boolean hasTo = Objects.nonNull(to);
         boolean hasBoth = hasFrom && hasTo;
 
-        Date dateFrom = convertStringToDate(from);
-        Date dateTo = convertStringToDate(to);
+        LocalDate dateFrom = convertStringToLocalDate(from);
+        LocalDate dateTo = convertStringToLocalDate(to);
 
         List<Person> people;
         if(!diseaseIds.isEmpty()) {
-            if (hasBoth) people = Person.listByDateDiscoveredBetweenAndIdsIn(convertDateToLocalDate(dateFrom), convertDateToLocalDate(dateTo),diseaseIds);
-            else if (hasFrom) people = Person.listByDateDiscoveredAfterAndIdsIn(convertDateToLocalDate(dateFrom),diseaseIds);
-            else people = Person.listByDateDiscoveredBeforeAndIdsIn(convertDateToLocalDate(dateTo),diseaseIds);
+            if (hasBoth) people = Person.listByDateDiscoveredBetweenAndIdsIn(dateFrom, dateTo,diseaseIds);
+            else if (hasFrom) people = Person.listByDateDiscoveredAfterAndIdsIn((dateFrom),diseaseIds);
+            else people = Person.listByDateDiscoveredBeforeAndIdsIn((dateTo),diseaseIds);
         } else {
-            if (hasBoth) people = Person.listByDateDiscoveredBetween(convertDateToLocalDate(dateFrom), convertDateToLocalDate(dateTo));
-            else if (hasFrom) people = Person.listByDateDiscoveredAfter(convertDateToLocalDate(dateFrom));
-            else people = Person.listByDateDiscoveredBefore(convertDateToLocalDate(dateTo));
+            if (hasBoth) people = Person.listByDateDiscoveredBetween((dateFrom), (dateTo));
+            else if (hasFrom) people = Person.listByDateDiscoveredAfter((dateFrom));
+            else people = Person.listByDateDiscoveredBefore((dateTo));
         }
 
         return checkIfEmptyAndConvertToResult(people,true,true);
@@ -153,6 +132,7 @@ public class PersonService {
 
     public Response updatePerson(UpdatePersonRequest request) {
         Optional<Person> personOptional = Person.findByIdOptional(request.getPersonId());
+        LocalDate date;
         if (personOptional.isEmpty())
             throw new EntityNotFoundException();
 
@@ -165,29 +145,26 @@ public class PersonService {
             person.setFirstName(request.getFirstName());
         if(Objects.nonNull(request.getLastName()))
             person.setLastName(request.getLastName());
+        if(Objects.nonNull(request.getDiseaseHistoryId())) {
+            Optional<DiseaseHistory> diseaseHistoryOptional = person.getDiseaseHistories().stream()
+                    .filter(dh -> dh.getId().equals(request.getDiseaseHistoryId())).findFirst();
+            if(diseaseHistoryOptional.isEmpty())
+                throw new EntityNotFoundException("Person with id: " + request.getPersonId() + " does not " +
+                        "have a disease history with id: " + request.getDiseaseHistoryId());
+            else {
+                DiseaseHistory diseaseHistory = diseaseHistoryOptional.get();
+                person.removeDiseaseHistory(diseaseHistory);
+                if(Objects.nonNull(request.getDateDiscovered())) {
+                    date = request.getDateDiscovered();
+                    diseaseHistory.setDateDiscovered(date);
+                }
+                if(Objects.nonNull(request.getDiseaseId()))
+                    diseaseHistory.setDiseaseId(request.getDiseaseId());
+                person.addDiseaseHistories(List.of(diseaseHistory));
+            }
+        }
 
         person.persist();
-        return checkIfEmptyAndConvertToResult(List.of(person),true,true);
-    }
-    public Response updateDiseaseHistory(UpdateDiseaseHistoryRequest request) {
-
-        Optional<Person> personOptional = Person.findByIdOptional(request.getPersonId());
-        if (personOptional.isEmpty())
-            throw new EntityNotFoundException("Person with id:  \""+ request.getPersonId() + "\" not found!");
-
-        Person person = personOptional.get();
-        Optional<DiseaseHistory> diseaseHistoryOptional = person.getDiseaseHistories().stream()
-                .filter(dh -> dh.getId().equals(request.getDiseaseHistoryId()))
-                .findFirst();
-
-        if(diseaseHistoryOptional.isEmpty())
-            throw new DiseaseHistoryDoesNotExistException(request.getDiseaseHistoryId());
-
-        DiseaseHistory diseaseHistory = diseaseHistoryOptional.get();
-        diseaseHistory.setDiseaseId(request.getNewDiseaseId());
-
-        person.persist();
-
         return checkIfEmptyAndConvertToResult(List.of(person),true,true);
     }
 
@@ -195,10 +172,16 @@ public class PersonService {
         List<DiseaseHistory> diseaseHistories = new ArrayList<>();
         if(!request.getDiseaseIds().isEmpty()) {
             diseaseHistories = request.getDiseaseIds().stream()
-                    .map(id -> DiseaseHistory.builder()
-                            .diseaseId(id)
-                            .dateDiscovered(LocalDate.now())
-                            .build())
+                    .map(id -> {
+                        DiseaseHistory diseaseHistory = DiseaseHistory.builder()
+                                .diseaseId(id)
+                                .build();
+                        if(request.getDateDiscovered() == null)
+                           diseaseHistory.setDateDiscovered(LocalDate.now());
+                        else
+                            diseaseHistory.setDateDiscovered(request.getDateDiscovered());
+                        return diseaseHistory;
+                    })
                     .collect(Collectors.toList());
         }
 
@@ -211,15 +194,6 @@ public class PersonService {
 
         person.setDiseaseHistories(diseaseHistories);
         return person;
-    }
-
-    private List<DiseaseHistory> convertRequestToDiseaseHistory(AddDiseaseHistoriesRequest request) {
-        return request.getDiseaseIds().stream()
-                .map(id -> DiseaseHistory.builder()
-                        .diseaseId(id)
-                        .dateDiscovered(LocalDate.now())
-                        .build())
-                .collect(Collectors.toList());
     }
 
     private List<PersonDto> convertPeopleToDtos(List<Person> people, boolean includePersonIds, boolean includeDiseaseHistoryIds) {
@@ -241,7 +215,7 @@ public class PersonService {
         return diseaseHistories.stream().map(dh -> {
             DiseaseHistoryDto dto = DiseaseHistoryDto.builder()
                     .diseaseId(dh.getDiseaseId())
-                    .dateDiscovered(LocalDate.now())
+                    .dateDiscovered(dh.getDateDiscovered())
                     .build();
             if(includeIds)
                 dto.setId(dh.getId());
@@ -249,6 +223,8 @@ public class PersonService {
         }).collect(Collectors.toList());
     }
     public LocalDate convertDateToLocalDate(Date dateToConvert) {
+        if(dateToConvert == null)
+            return null;
         return dateToConvert.toInstant()
                 .atZone(ZoneId.systemDefault())
                 .toLocalDate();
@@ -264,34 +240,44 @@ public class PersonService {
         return Response.ok().entity(result).build();
     }
 
-    private boolean checkIfPersonAlreadyContainsThatDiseaseHistories(Person person, List<DiseaseHistory> diseaseHistories){
-        AtomicBoolean contains = new AtomicBoolean(false);
-        if(diseaseHistories.get(0).getId()!=null){
-            diseaseHistories.forEach(dh -> {
-                if(person.getDiseaseHistories().stream()
-                        .mapToLong(DiseaseHistory::getId)
-                        .anyMatch(l -> l==dh.getId())) {
-                    contains.set(true);
-                }
-            });
-        } else {
-            diseaseHistories.forEach(dh -> {
-                if (person.getDiseaseHistories().stream()
-                        .mapToLong(DiseaseHistory::getDiseaseId)
-                        .anyMatch(l -> l == dh.getDiseaseId()))
-                    contains.set(true);
-            });
-        }
-        return contains.get();
-    }
-
     private Date convertStringToDate(String date) {
         if(date == null)
             return null;
         try {
-            return new SimpleDateFormat("dd/MM/yyyy").parse(date);
+            return new SimpleDateFormat("dd-MM-yyyy").parse(date);
         } catch (Exception e) {
-            throw new DateParseException();
+            try {
+                return new SimpleDateFormat("dd/MM/yyyy").parse(date);
+            } catch (Exception e1) {
+                try {
+                    return new SimpleDateFormat("dd.MM.yyyy").parse(date);
+                } catch (Exception e2) {
+                    try {
+                        return new SimpleDateFormat("ddMMyyyy").parse(date);
+                    } catch (Exception e3) {
+                        try {
+                            return new SimpleDateFormat("yyyy-MM-dd").parse(date);
+                        } catch (Exception e4) {
+                            try {
+                                return new SimpleDateFormat("yyyy/MM/dd").parse(date);
+                            } catch (Exception e5) {
+                                try {
+                                    return new SimpleDateFormat("yyyy.MM.dd").parse(date);
+                                } catch (Exception e6) {
+                                    try {
+                                        return new SimpleDateFormat("yyyyMMdd").parse(date);
+                                    } catch (Exception e7) {
+                                        throw new DateParseException(date);
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
         }
+    }
+    private LocalDate convertStringToLocalDate(String date) {
+        return convertDateToLocalDate(convertStringToDate(date));
     }
 }

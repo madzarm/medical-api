@@ -1,5 +1,6 @@
 package com.example.service.request;
 
+import com.example.exception.validation.Date;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -8,6 +9,7 @@ import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Pattern;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -33,4 +35,7 @@ public class CreatePersonRequest {
     private Integer age;
 
     private List<Long> diseaseIds = new ArrayList<>();
+
+    @Date
+    private LocalDate dateDiscovered;
 }

@@ -2,6 +2,7 @@ package com.example;
 
 import com.example.exception.exceptions.BadCreateMedicalRecordRequestException;
 import com.example.exception.exceptions.BadSearchMedicalRecordRequestException;
+import com.example.exception.validation.Date;
 import com.example.service.MedicalRecordService;
 import com.example.service.request.CreateMedicalRecordRequest;
 import com.example.service.request.GetMedicalRecordsRequest;
@@ -14,7 +15,6 @@ import javax.validation.Valid;
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import java.util.Date;
 import java.util.List;
 import java.util.Objects;
 
@@ -37,10 +37,11 @@ public class MedicalRecordResource {
             @QueryParam("weightUpperLimit") Integer weightUpperLimit,
             @QueryParam("ageLowerLimit") Integer ageLowerLimit,
             @QueryParam("ageUpperLimit") Integer ageUpperLimit,
-            @QueryParam("from") Date from,
-            @QueryParam("to") Date to,
+            @QueryParam("from") @Date String from,
+            @QueryParam("to") @Date String to,
             @QueryParam("diseaseName") String diseaseName
     ) {
+
         boolean hasPersonId = Objects.nonNull(personIds) && !personIds.isEmpty();
         boolean hasDiseaseId = Objects.nonNull(diseaseIds) && !diseaseIds.isEmpty();
         boolean hasName = Objects.nonNull(firstName) || Objects.nonNull(lastName);
