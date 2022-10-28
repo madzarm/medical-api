@@ -168,6 +168,14 @@ public class PersonService {
         return checkIfEmptyAndConvertToResult(List.of(person),true,true);
     }
 
+    public Response deletePerson(Long personId) {
+        Optional<Person> person = Person.findByIdOptional(personId);
+        return person.map(p -> {
+            p.delete();
+            return Response.ok(p).build();
+        }).orElseThrow(() -> new EntityNotFoundException(personId));
+    }
+
     private Person convertRequestToPerson(CreatePersonRequest request) {
         List<DiseaseHistory> diseaseHistories = new ArrayList<>();
         if(!request.getDiseaseIds().isEmpty()) {
@@ -179,7 +187,7 @@ public class PersonService {
                         if(request.getDateDiscovered() == null)
                            diseaseHistory.setDateDiscovered(LocalDate.now());
                         else
-                            diseaseHistory.setDateDiscovered(request.getDateDiscovered());
+                            diseaseHistory.setDateDiscovered(convertStringToLocalDate(request.getDateDiscovered()));
                         return diseaseHistory;
                     })
                     .collect(Collectors.toList());
@@ -280,4 +288,6 @@ public class PersonService {
     private LocalDate convertStringToLocalDate(String date) {
         return convertDateToLocalDate(convertStringToDate(date));
     }
+
+
 }

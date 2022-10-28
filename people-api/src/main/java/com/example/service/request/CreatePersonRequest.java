@@ -37,5 +37,5 @@ public class CreatePersonRequest {
     private List<Long> diseaseIds = new ArrayList<>();
 
     @Date
-    private LocalDate dateDiscovered;
+    private String dateDiscovered;
 }

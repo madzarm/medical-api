@@ -35,4 +35,6 @@ public class CreatePersonRequest {
     private Integer age;
 
     private List<Long> diseaseIds = new ArrayList<>();
+
+    private String dateDiscovered;
 }

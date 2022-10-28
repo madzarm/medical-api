@@ -45,6 +45,16 @@ public class PersonResource {
         return personService.updatePerson(request);
     }
 
+    @DELETE
+    @Path("/")
+    @Produces(MediaType.APPLICATION_JSON)
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Transactional
+    @Operation(summary = "Deletes a person by id")
+    public Response deletePerson(@QueryParam("personId") Long personId) {
+        return personService.deletePerson(personId);
+    }
+
     @GET
     @Path("/")
     @Produces(MediaType.APPLICATION_JSON)

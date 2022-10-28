@@ -74,42 +74,27 @@ public class MedicalRecordService {
         SearchMedicalRecordsResult result;
 
         if(!request.getDiseaseIds().isEmpty()) {
-
             responseFromDiseaseClient = diseaseClient.getDiseasesByIds(request.getDiseaseIds());
         } else if (request.getDiseaseName()!=null) {
             responseFromDiseaseClient = diseaseClient.getDiseasesByName(request.getDiseaseName());
         }
-        if(checkResponseForException(responseFromDiseaseClient)!=null)
-            return checkResponseForException(responseFromDiseaseClient);
 
         if(responseFromDiseaseClient!=null)
             diseaseModels = responseFromDiseaseClient.readEntity(SearchDiseasesModel.class).getDiseases();
 
         personRequest = mapMedicalToPersonRequest(request);
-        if(personRequest.getDiseaseIds().isEmpty()) {
+        if(request.getDiseaseIds().isEmpty()) {
             diseaseIds = diseaseModels.stream().map(DiseaseModel::getId).collect(Collectors.toList());
             personRequest.setDiseaseIds(diseaseIds);
         }
 
         responseFromPersonClient = personClient.createPerson(personRequest);
-        if(checkResponseForException(responseFromPersonClient)!=null)
-            return checkResponseForException(responseFromPersonClient);
 
         personModels = responseFromPersonClient.readEntity(SearchPeopleModel.class).getPeople();
 
         result = mapToMedicalRecordResult(diseaseModels,personModels);
 
         return Response.ok().entity(result).build();
-    }
-
-    private Response checkResponseForException(Response response) {
-        if(response != null) {
-            if (response.getStatus() == 202)
-                return Response
-                        .status(response.getStatus())
-                        .entity(response.readEntity(ExceptionResponse.class)).build();
-        }
-        return null;
     }
 
 
@@ -158,6 +143,7 @@ public class MedicalRecordService {
                 .weight(request.getWeight())
                 .age(request.getAge())
                 .diseaseIds(request.getDiseaseIds())
+                .dateDiscovered(request.getDateDiscovered())
                 .build();
     }
 

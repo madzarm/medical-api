@@ -1,5 +1,6 @@
 package com.example.service.request;
 
+import com.example.exception.validation.Date;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -35,4 +36,7 @@ public class CreateMedicalRecordRequest {
     private String diseaseName;
 
     private List<Long> diseaseIds = new ArrayList<>();
+
+    @Date
+    private String dateDiscovered;
 }
