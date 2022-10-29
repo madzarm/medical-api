@@ -97,6 +97,10 @@ public class MedicalRecordService {
         return Response.ok().entity(result).build();
     }
 
+    public Response deleteMedicalRecord(Long personId, Long diseaseHistoryId) {
+        return personClient.deletePerson(personId,diseaseHistoryId);
+    }
+
 
     private SearchMedicalRecordsResult mapToMedicalRecordResult(List<DiseaseModel> diseaseModels, List<PersonModel> personModels) {
         List<MedicalRecordDto> medicalRecordDtos = mapToMedicalRecordDtos(diseaseModels,personModels);

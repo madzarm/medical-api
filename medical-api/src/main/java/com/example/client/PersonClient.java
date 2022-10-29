@@ -41,4 +41,14 @@ public interface PersonClient {
             @QueryParam("from") String from,
             @QueryParam("to") String to
     );
+
+    @DELETE
+    @Path("/")
+    @Produces(MediaType.APPLICATION_JSON)
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Transactional
+    Response deletePerson(
+            @QueryParam("personId") Long personId,
+            @QueryParam("diseaseHistoryId") Long diseaseHistoryId
+    );
 }

@@ -1,6 +1,5 @@
 package com.example;
 
-import com.example.exception.exceptions.BadRequestException;
 import com.example.service.PersonService;
 import com.example.service.request.CreatePersonRequest;
 import com.example.service.request.UpdatePersonRequest;
@@ -51,7 +50,17 @@ public class PersonResource {
     @Consumes(MediaType.APPLICATION_JSON)
     @Transactional
     @Operation(summary = "Deletes a person by id")
-    public Response deletePerson(@QueryParam("personId") Long personId) {
+    public Response deletePerson(
+            @QueryParam("personId") Long personId,
+            @QueryParam("diseaseHistoryId") Long diseaseHistoryId
+    ) {
+        boolean hasDiseaseHistoryId = Objects.nonNull(diseaseHistoryId);
+        boolean hasPersonId = Objects.nonNull(personId);
+
+        if(!hasPersonId)
+            throw new BadRequestException("PersonId is required!");
+        if(hasDiseaseHistoryId)
+            return personService.deleteDiseaseHistory(personId, diseaseHistoryId);
         return personService.deletePerson(personId);
     }
 
@@ -88,7 +97,8 @@ public class PersonResource {
         boolean hasAnyCombination = hasPersonIdCombination || hasDiseaseIdCombination || hasNameCombination ||
                 hasWeightCombination || hasAgeCombination || hasDateCombination;
 
-        if(hasAnyCombination) throw new BadRequestException();
+        if(hasAnyCombination) throw new BadRequestException("You may combine either personId or diseaseIds with other " +
+                "types of searches (weight, date, age or name search) ");
         else if (hasPersonId) return personService.getByIds(personIds);
         else if (hasName) return personService.getByName(firstName,lastName,diseaseIds);
         else if (hasAge) return personService.getByAge(ageLowerLimit,ageUpperLimit,diseaseIds);

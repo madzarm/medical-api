@@ -176,6 +176,19 @@ public class PersonService {
         }).orElseThrow(() -> new EntityNotFoundException(personId));
     }
 
+    public Response deleteDiseaseHistory(Long personId, Long diseaseHistoryId) {
+        Optional<Person> person = Person.findByIdOptional(personId);
+        return person.map(p -> {
+            Optional<DiseaseHistory> dhOptional = p.getDiseaseHistories().stream()
+                    .filter(dh -> dh.getId().equals(diseaseHistoryId))
+                    .findFirst();
+            return dhOptional.map(dh -> {
+                p.removeDiseaseHistory(dh);
+                return Response.ok(dh).build();
+            }).orElseThrow(() -> new EntityNotFoundException(diseaseHistoryId));
+        }).orElseThrow(() -> new EntityNotFoundException(personId));
+    }
+
     private Person convertRequestToPerson(CreatePersonRequest request) {
         List<DiseaseHistory> diseaseHistories = new ArrayList<>();
         if(!request.getDiseaseIds().isEmpty()) {

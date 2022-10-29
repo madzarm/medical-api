@@ -67,4 +67,23 @@ public class MedicalRecordResource {
 
         return service.createMedicalRecord(request);
     }
+
+    @DELETE
+    @Path("/")
+    @Produces(MediaType.APPLICATION_JSON)
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Transactional
+    @Operation(
+            summary = "Deletes a medical record or a disease history",
+            description = "Send only a personId if you want to delete a whole medical record, " +
+                    "or send a personId with a diseaseHistoryId to only delete that person's diseasehistory"
+    )
+    public Response deleteMedicalRecord(
+            @QueryParam("personId") Long personId,
+            @QueryParam("diseaseHistoryId") Long diseaseHistoryId
+    ) {
+        if(Objects.isNull(personId))
+            throw new BadRequestException("PersonId is required!");
+        return service.deleteMedicalRecord(personId, diseaseHistoryId);
+    }
 }

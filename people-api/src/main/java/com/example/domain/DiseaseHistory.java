@@ -35,8 +35,4 @@ public class DiseaseHistory extends PanacheEntityBase {
     @Column(name = "disease_id", nullable = false)
     private Long diseaseId;
 
-
-    public static List<DiseaseHistory> listByPersonId(Long personId) {
-        return DiseaseHistory.list("personId = ?1", personId);
-    }
 }
