@@ -13,7 +13,6 @@ public class ExceptionMapper implements javax.ws.rs.ext.ExceptionMapper<Exceptio
         String generalCode = "MEDICAL-SERVICE";
         int generalStatus = 500;
         ExceptionResponse response;
-
         if(e instanceof WebApplicationException) {
             try {
                 response = ((WebApplicationException)e).getResponse().readEntity(ExceptionResponse.class);

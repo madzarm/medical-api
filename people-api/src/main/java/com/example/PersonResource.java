@@ -30,7 +30,7 @@ public class PersonResource {
     @Consumes(MediaType.APPLICATION_JSON)
     @Transactional
     @Operation(summary = "Creates a person")
-    public Response createPerson(@RequestBody CreatePersonRequest request) {
+    public Response createPerson(@Valid @RequestBody CreatePersonRequest request) {
         return personService.createPerson(request);
     }
 

@@ -14,7 +14,6 @@ public class ExceptionMapper implements javax.ws.rs.ext.ExceptionMapper<Exceptio
         ExceptionResponse response;
         int generalStatus = 500;
         String generalCode = "PERSON-SERVICE";
-
         response = new ExceptionResponse(generalCode, e.getMessage());
         return Response.status(generalStatus).entity(response).build();
     }
