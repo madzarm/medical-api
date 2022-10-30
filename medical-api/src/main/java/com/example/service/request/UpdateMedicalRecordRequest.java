@@ -1,19 +1,21 @@
 package com.example.service.request;
 
-import com.example.exception.validation.UpdatePersonRequestValidation;
-import com.fasterxml.jackson.annotation.JsonFormat;
+import com.example.exception.validation.Date;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import javax.validation.constraints.*;
+import javax.validation.constraints.Max;
+import javax.validation.constraints.Min;
+import javax.validation.constraints.Pattern;
+import javax.validation.constraints.Positive;
 
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class UpdatePersonRequest {
+public class UpdateMedicalRecordRequest {
 
-    @NotNull(message = "PersonId may not be null!")
+    @Positive
     private Long personId;
 
     @Pattern(regexp = "^[A-Za-z]+$", message = "You may only use alphabetic characters [a-zA-z]")
@@ -22,21 +24,21 @@ public class UpdatePersonRequest {
     @Pattern(regexp = "^[A-Za-z]+$", message = "You may only use alphabetic characters [a-zA-z]")
     private String lastName;
 
-    @Max(value = 500, message = "Weight must be less than 500kg!")
-    @Min(value = 0, message = "Weight must be more than 0kg!")
+    @Min(0) @Max(500)
     private Integer weight;
 
-    @Max(value = 150, message = "Age must be less than 0!")
-    @Min(value = 0, message = "Age must be more than 0!")
+    @Min(0) @Max(150)
     private Integer age;
 
     @Positive
     private Long diseaseHistoryId;
 
-    @JsonFormat(pattern = "dd-MM-yyyy")
+    @Date
     private String dateDiscovered;
 
     @Positive
     private Long diseaseId;
 
+    @Pattern(regexp = "^[A-Za-z]+$", message = "You may only use alphabetic characters [a-zA-z]")
+    private String diseaseName;
 }

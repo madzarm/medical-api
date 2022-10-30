@@ -1,10 +1,13 @@
 package com.example.client;
 
 import com.example.service.request.CreatePersonRequest;
+import com.example.service.request.UpdatePersonRequest;
+import org.eclipse.microprofile.openapi.annotations.Operation;
 import org.eclipse.microprofile.openapi.annotations.parameters.RequestBody;
 import org.eclipse.microprofile.rest.client.inject.RegisterRestClient;
 
 import javax.transaction.Transactional;
+import javax.validation.Valid;
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
@@ -25,6 +28,14 @@ public interface PersonClient {
     @Consumes(MediaType.APPLICATION_JSON)
     @Transactional
     Response createPerson(@RequestBody CreatePersonRequest request);
+
+    @PUT
+    @Path("/")
+    @Produces(MediaType.APPLICATION_JSON)
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Transactional
+    @Operation(summary = "updates a person by id")
+    Response updatePerson(@Valid @RequestBody UpdatePersonRequest request);
 
     @GET
     @Path("/")

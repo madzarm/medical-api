@@ -8,15 +8,14 @@ import com.example.domain.PersonModel;
 import com.example.domain.dto.DiseaseHistoryDto;
 import com.example.domain.dto.MedicalRecordDto;
 import com.example.exception.ExceptionResponse;
-import com.example.service.request.CreateMedicalRecordRequest;
-import com.example.service.request.CreatePersonRequest;
-import com.example.service.request.GetMedicalRecordsRequest;
+import com.example.service.request.*;
 import com.example.service.result.SearchMedicalRecordsResult;
 import com.example.service.result.model.SearchDiseasesModel;
 import com.example.service.result.model.SearchPeopleModel;
 import org.eclipse.microprofile.rest.client.inject.RestClient;
 
 import javax.enterprise.context.ApplicationScoped;
+import javax.persistence.EntityNotFoundException;
 import javax.ws.rs.core.Response;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
@@ -101,6 +100,41 @@ public class MedicalRecordService {
         return personClient.deletePerson(personId,diseaseHistoryId);
     }
 
+    public Response updateMedicalRecord(UpdateMedicalRecordRequest request) {
+        Long diseaseId;
+        if(request.getDiseaseName() != null){
+            Response response = diseaseClient.getDiseasesByName(request.getDiseaseName());
+            List<Long> diseaseIds = getDiseaseIdsFromDiseaseClientResponse(response);
+            if(diseaseIds.isEmpty())
+                throw new EntityNotFoundException("Disease with name: " + request.getDiseaseName() + " not found!");
+            diseaseId = diseaseIds.get(0);
+        } else {
+            diseaseId = request.getDiseaseId();
+            Response response = diseaseClient.getDiseasesByIds(List.of(diseaseId));
+            List<Long> diseaseIds = getDiseaseIdsFromDiseaseClientResponse(response);
+            if(diseaseIds.isEmpty())
+                throw new EntityNotFoundException("Disease with id: " + request.getDiseaseId() + " not found!");
+        }
+
+        UpdatePersonRequest updateRequest = UpdatePersonRequest.builder()
+                .diseaseId(diseaseId)
+                .firstName(request.getFirstName())
+                .lastName(request.getLastName())
+                .age(request.getAge())
+                .weight(request.getWeight())
+                .diseaseHistoryId(request.getDiseaseHistoryId())
+                .dateDiscovered(request.getDateDiscovered())
+                .personId(request.getPersonId())
+                .build();
+
+        return personClient.updatePerson(updateRequest);
+    }
+
+    private List<Long> getDiseaseIdsFromDiseaseClientResponse(Response response) {
+        return response.readEntity(SearchDiseasesModel.class).getDiseases().stream()
+                .map(DiseaseModel::getId).collect(Collectors.toList());
+    }
+
 
     private SearchMedicalRecordsResult mapToMedicalRecordResult(List<DiseaseModel> diseaseModels, List<PersonModel> personModels) {
         List<MedicalRecordDto> medicalRecordDtos = mapToMedicalRecordDtos(diseaseModels,personModels);
@@ -173,4 +207,6 @@ public class MedicalRecordService {
         DateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy");
         return dateFormat.format(date);
     }
+
+
 }

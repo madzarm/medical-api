@@ -1,11 +1,13 @@
 package com.example;
 
 import com.example.exception.exceptions.BadCreateMedicalRecordRequestException;
+import com.example.exception.exceptions.BadRequestException;
 import com.example.exception.exceptions.BadSearchMedicalRecordRequestException;
 import com.example.exception.validation.Date;
 import com.example.service.MedicalRecordService;
 import com.example.service.request.CreateMedicalRecordRequest;
 import com.example.service.request.GetMedicalRecordsRequest;
+import com.example.service.request.UpdateMedicalRecordRequest;
 import org.eclipse.microprofile.openapi.annotations.Operation;
 import org.eclipse.microprofile.openapi.annotations.parameters.RequestBody;
 
@@ -86,4 +88,23 @@ public class MedicalRecordResource {
             throw new BadRequestException("PersonId is required!");
         return service.deleteMedicalRecord(personId, diseaseHistoryId);
     }
+
+
+    @PUT
+    @Path("/")
+    @Produces(MediaType.APPLICATION_JSON)
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Transactional
+    @Operation(summary = "updates a person by id")
+    public Response updateMedicalRecord(@Valid @RequestBody UpdateMedicalRecordRequest request) {
+        boolean hasDiseaseId = Objects.nonNull(request.getDiseaseId());
+        boolean hasDiseaseName = Objects.nonNull(request.getDiseaseName());
+
+        if(hasDiseaseName && hasDiseaseId) {
+            throw new BadRequestException("You can not have both diseaseName and diseaseId");
+        }
+
+        return service.updateMedicalRecord(request);
+    }
+
 }

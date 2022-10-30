@@ -11,6 +11,7 @@ import com.example.service.request.UpdatePersonRequest;
 import com.example.service.result.SearchPeopleResult;
 
 import javax.enterprise.context.ApplicationScoped;
+import javax.ws.rs.BadRequestException;
 import javax.ws.rs.core.Response;
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
@@ -134,7 +135,7 @@ public class PersonService {
         Optional<Person> personOptional = Person.findByIdOptional(request.getPersonId());
         LocalDate date;
         if (personOptional.isEmpty())
-            throw new EntityNotFoundException();
+            throw new EntityNotFoundException("Person with id: " + request.getPersonId() + " was not found!");
 
         Person person = personOptional.get();
         if (Objects.nonNull(request.getAge()))
@@ -149,22 +150,37 @@ public class PersonService {
             Optional<DiseaseHistory> diseaseHistoryOptional = person.getDiseaseHistories().stream()
                     .filter(dh -> dh.getId().equals(request.getDiseaseHistoryId())).findFirst();
             if(diseaseHistoryOptional.isEmpty())
-                throw new EntityNotFoundException("Person with id: " + request.getPersonId() + " does not " +
-                        "have a disease history with id: " + request.getDiseaseHistoryId());
+                throw new BadRequestException("Perosn with id: " + request.getPersonId() + " does not a have a " +
+                        "disease history with id: " + request.getDiseaseHistoryId());
             else {
                 DiseaseHistory diseaseHistory = diseaseHistoryOptional.get();
                 person.removeDiseaseHistory(diseaseHistory);
                 if(Objects.nonNull(request.getDateDiscovered())) {
-                    date = request.getDateDiscovered();
+                    date = convertStringToLocalDate(request.getDateDiscovered());
                     diseaseHistory.setDateDiscovered(date);
                 }
-                if(Objects.nonNull(request.getDiseaseId()))
+                if(Objects.nonNull(request.getDiseaseId())) {
+                    List<Long> diseaseIds = getDiseaseIdsFromPersonList(List.of(person));
+                    if(diseaseIds.contains(request.getDiseaseId()))
+                        throw new BadRequestException("Person already has a diseaseHistory with diseaseId: " + request.getDiseaseId());
                     diseaseHistory.setDiseaseId(request.getDiseaseId());
+                }
                 person.addDiseaseHistories(List.of(diseaseHistory));
+                diseaseHistory.persist();
             }
+        } else if (request.getDiseaseId() != null) {
+            List<Long> diseaseIds = getDiseaseIdsFromPersonList(List.of(person));
+            if(diseaseIds.contains(request.getDiseaseId()))
+                throw new BadRequestException("Person already has a diseaseHistory with diseaseId: " + request.getDiseaseId());
+            DiseaseHistory diseaseHistory = new DiseaseHistory();
+            diseaseHistory.setDiseaseId(request.getDiseaseId());
+            if(request.getDateDiscovered() == null)
+                diseaseHistory.setDateDiscovered(LocalDate.now());
+            else
+                diseaseHistory.setDateDiscovered(convertStringToLocalDate(request.getDateDiscovered()));
+            person.addDiseaseHistories(List.of(diseaseHistory));
+            diseaseHistory.persist();
         }
-
-        person.persist();
         return checkIfEmptyAndConvertToResult(List.of(person),true,true);
     }
 
@@ -300,6 +316,22 @@ public class PersonService {
     }
     private LocalDate convertStringToLocalDate(String date) {
         return convertDateToLocalDate(convertStringToDate(date));
+    }
+
+    private List<Long> getDiseaseIdsFromPersonList(List<Person> people) {
+        List<Long> distinctLongs = new ArrayList<>();
+        List<List<Long>> longs = people.stream()
+                .map(p -> p.getDiseaseHistories().stream()
+                        .map(DiseaseHistory::getDiseaseId)
+                        .collect(Collectors.toList()))
+                .collect(Collectors.toList());
+
+        longs.forEach(l -> l.forEach(lng -> {
+            if(!distinctLongs.contains(lng))
+                distinctLongs.add(lng);
+        }));
+
+        return distinctLongs;
     }
 
 
