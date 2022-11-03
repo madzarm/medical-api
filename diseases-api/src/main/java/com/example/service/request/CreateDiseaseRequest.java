@@ -1,18 +1,15 @@
 package com.example.service.request;
 
+import com.example.exception.validation.ValidateRequest;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.NotNull;
-
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
+@ValidateRequest
 public class CreateDiseaseRequest {
-    @NotBlank(message = "Name may not be blank!")
     private String name;
-    @NotNull(message = "Curable may not be null!")
     private Boolean curable;
 }

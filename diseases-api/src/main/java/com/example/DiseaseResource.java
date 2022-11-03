@@ -9,6 +9,7 @@ import org.eclipse.microprofile.openapi.annotations.parameters.RequestBody;
 
 import javax.inject.Inject;
 import javax.transaction.Transactional;
+import javax.validation.Valid;
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
@@ -28,7 +29,7 @@ public class DiseaseResource {
     @Consumes(MediaType.APPLICATION_JSON)
     @Transactional
     @Operation(summary = "Creates a disease")
-    public Response createDisease(@RequestBody CreateDiseaseRequest request) {
+    public Response createDisease(@RequestBody @Valid CreateDiseaseRequest request) {
         return diseaseService.createDisease(request);
     }
 

@@ -24,7 +24,10 @@ public class DiseaseService {
         return (Response) Disease.findByName(disease.getName())
                 .map(d -> {
                     throw new BadRequestException("Disease with that name already exists!");
-                }).orElseGet(() -> mapper.constructResponse(disease));
+                }).orElseGet(() -> {
+                    disease.persist();
+                    return mapper.constructResponse(disease);
+                });
     }
 
     public Response getAllDiseases() {
@@ -74,42 +77,30 @@ public class DiseaseService {
         else success = Disease.updateByIdWithCurable(id, curable);
 
         return mapper.constructResponse(success);
-
     }
 
     public Response updateDiseaseByName(String name, Boolean curable) {
-
         int success = Disease.updateByNameWithCurable(name, curable);
-
         return mapper.constructResponse(success);
     }
 
     public Response deleteDiseasesByIds(List<Long> diseaseIds) {
-
         int success = Disease.deleteByIds(diseaseIds);
-
         return mapper.constructResponse(success);
     }
 
     public Response deleteDiseasesByName(String name) {
-
         int success = Disease.deleteByName(name);
-
         return mapper.constructResponse(success);
     }
 
     public Response deleteDiseasesByCurable(boolean curable) {
-
         int success = Disease.deleteByCurable(curable);
-
         return mapper.constructResponse(success);
     }
 
     public Response deleteAllDiseases() {
-
         int success = (int) Disease.deleteAll();
-
         return mapper.constructResponse(success);
     }
-
 }
