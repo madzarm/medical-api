@@ -1,6 +1,5 @@
 package com.example.service.request;
 
-import com.example.exception.validation.UpdatePersonRequestValidation;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.AllArgsConstructor;
 import lombok.Data;

@@ -7,7 +7,6 @@ import com.example.domain.DiseaseModel;
 import com.example.domain.PersonModel;
 import com.example.domain.dto.DiseaseHistoryDto;
 import com.example.domain.dto.MedicalRecordDto;
-import com.example.exception.ExceptionResponse;
 import com.example.service.request.*;
 import com.example.service.result.SearchMedicalRecordsResult;
 import com.example.service.result.model.SearchDiseasesModel;
@@ -35,7 +34,6 @@ public class MedicalRecordService {
         Response diseaseClientResponse;
         Response personClientResponse;
         List<DiseaseModel> diseaseModels;
-        List<PersonModel> personModels;
 
 
         if(request.getDiseaseName()!=null){
@@ -51,35 +49,29 @@ public class MedicalRecordService {
                     request.getFirstName(), request.getLastName(), request.getWeightLowerLimit(), request.getWeightUpperLimit(),
                     request.getAgeLowerLimit(), request.getAgeUpperLimit(), request.getFrom(), request.getTo());
         }
-
-        personModels = personClientResponse.readEntity(SearchPeopleModel.class).getPeople();
-        List<Long> diseaseIds = getDiseaseIdsFromPersonModels(personModels);
+        List<Long> diseaseIds = getDiseaseIdsFromPersonClientResponse(personClientResponse);
 
         diseaseClientResponse = diseaseClient.getDiseasesByIds(diseaseIds);
-        diseaseModels = diseaseClientResponse.readEntity(SearchDiseasesModel.class).getDiseases();
 
-        SearchMedicalRecordsResult result = mapToMedicalRecordResult(diseaseModels,personModels);
-
-        return Response.ok().entity(result).build();
+        return mapToMedicalRecordResult(diseaseClientResponse,personClientResponse);
     }
 
     public Response createMedicalRecord(CreateMedicalRecordRequest request) {
-        Response responseFromDiseaseClient = null;
-        Response responseFromPersonClient;
+        Response diseaseClientResponse = null;
+        Response personClientResponse;
         List<Long> diseaseIds;
         List<DiseaseModel> diseaseModels = new ArrayList<>();
         CreatePersonRequest personRequest;
-        List<PersonModel> personModels;
         SearchMedicalRecordsResult result;
 
         if(!request.getDiseaseIds().isEmpty()) {
-            responseFromDiseaseClient = diseaseClient.getDiseasesByIds(request.getDiseaseIds());
+            diseaseClientResponse = diseaseClient.getDiseasesByIds(request.getDiseaseIds());
         } else if (request.getDiseaseName()!=null) {
-            responseFromDiseaseClient = diseaseClient.getDiseasesByName(request.getDiseaseName());
+            diseaseClientResponse = diseaseClient.getDiseasesByName(request.getDiseaseName());
         }
 
-        if(responseFromDiseaseClient!=null)
-            diseaseModels = responseFromDiseaseClient.readEntity(SearchDiseasesModel.class).getDiseases();
+        if(diseaseClientResponse!=null)
+            diseaseModels = diseaseClientResponse.readEntity(SearchDiseasesModel.class).getDiseases();
 
         personRequest = mapMedicalToPersonRequest(request);
         if(request.getDiseaseIds().isEmpty()) {
@@ -87,13 +79,9 @@ public class MedicalRecordService {
             personRequest.setDiseaseIds(diseaseIds);
         }
 
-        responseFromPersonClient = personClient.createPerson(personRequest);
+        personClientResponse = personClient.createPerson(personRequest);
 
-        personModels = responseFromPersonClient.readEntity(SearchPeopleModel.class).getPeople();
-
-        result = mapToMedicalRecordResult(diseaseModels,personModels);
-
-        return Response.ok().entity(result).build();
+        return mapToMedicalRecordResult(diseaseClientResponse,personClientResponse);
     }
 
     public Response deleteMedicalRecord(Long personId, Long diseaseHistoryId) {
@@ -127,7 +115,11 @@ public class MedicalRecordService {
                 .personId(request.getPersonId())
                 .build();
 
-        return personClient.updatePerson(updateRequest);
+        Response personClientResponse = personClient.updatePerson(updateRequest);
+        List<Long> diseaseIds = getDiseaseIdsFromPersonClientResponse(personClientResponse);
+        Response diseaseClientResponse = diseaseClient.getDiseasesByIds(diseaseIds);
+
+        return mapToMedicalRecordResult(diseaseClientResponse, personClientResponse);
     }
 
     private List<Long> getDiseaseIdsFromDiseaseClientResponse(Response response) {
@@ -136,13 +128,21 @@ public class MedicalRecordService {
     }
 
 
-    private SearchMedicalRecordsResult mapToMedicalRecordResult(List<DiseaseModel> diseaseModels, List<PersonModel> personModels) {
+    private Response mapToMedicalRecordResult(Response diseaseClientResponse, Response personClientResponse) {
+        List<DiseaseModel> diseaseModels = new ArrayList<>();
+        List<PersonModel> personModels = new ArrayList<>();
+
+        try {
+            diseaseModels = diseaseClientResponse.readEntity(SearchDiseasesModel.class).getDiseases();
+            personModels = personClientResponse.readEntity(SearchPeopleModel.class).getPeople();
+        } catch (Exception e){}
+
         List<MedicalRecordDto> medicalRecordDtos = mapToMedicalRecordDtos(diseaseModels,personModels);
 
         SearchMedicalRecordsResult result = new SearchMedicalRecordsResult();
         result.setMedicalRecords(medicalRecordDtos);
 
-        return result;
+        return Response.ok(result).build();
     }
 
     private List<MedicalRecordDto> mapToMedicalRecordDtos(List<DiseaseModel> diseaseModels, List<PersonModel> personModels) {
@@ -185,7 +185,8 @@ public class MedicalRecordService {
                 .build();
     }
 
-    private List<Long> getDiseaseIdsFromPersonModels(List<PersonModel> personModels) {
+    private List<Long> getDiseaseIdsFromPersonClientResponse(Response personClientResponse) {
+        List<PersonModel> personModels = personClientResponse.readEntity(SearchPeopleModel.class).getPeople();
         List<Long> distinctLongs = new ArrayList<>();
         List<List<Long>> longs = personModels.stream()
                 .map(p -> p.getDiseaseHistories().stream()
@@ -199,13 +200,6 @@ public class MedicalRecordService {
         }));
 
         return distinctLongs;
-    }
-
-    private String convertDateToString(Date date) {
-        if(date == null)
-            return null;
-        DateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy");
-        return dateFormat.format(date);
     }
 
 

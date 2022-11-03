@@ -13,7 +13,7 @@ public class DateValidator implements ConstraintValidator<Date, String> {
 
     @Override
     public boolean isValid(String date, ConstraintValidatorContext constraintValidatorContext) {
-        if (date == null ) {
+        if (date == null) {
             return true;
         }
         try {

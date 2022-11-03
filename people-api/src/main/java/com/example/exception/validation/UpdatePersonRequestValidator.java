@@ -7,7 +7,8 @@ import java.util.Objects;
 public class UpdatePersonRequestValidator implements ConstraintValidator<UpdatePersonRequestValidation, com.example.service.request.UpdatePersonRequest> {
 
     @Override
-    public void initialize(UpdatePersonRequestValidation annotation) {}
+    public void initialize(UpdatePersonRequestValidation annotation) {
+    }
 
     @Override
     public boolean isValid(com.example.service.request.UpdatePersonRequest request, ConstraintValidatorContext constraintValidatorContext) {

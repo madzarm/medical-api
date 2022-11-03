@@ -8,9 +8,8 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
-import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.NotNull;
 import java.util.List;
+import java.util.Optional;
 
 
 @Data
@@ -35,6 +34,10 @@ public class Disease extends PanacheEntityBase {
     public Disease(String name, boolean curable) {
         this.name = name;
         this.curable = curable;
+    }
+
+    public static Optional<Disease> findByName(String name) {
+        return Disease.find("name", name).firstResultOptional();
     }
 
     public static List<Disease> listByIdsIn(List<Long> ids) {

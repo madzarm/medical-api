@@ -57,9 +57,9 @@ public class PersonResource {
         boolean hasDiseaseHistoryId = Objects.nonNull(diseaseHistoryId);
         boolean hasPersonId = Objects.nonNull(personId);
 
-        if(!hasPersonId)
+        if (!hasPersonId)
             throw new BadRequestException("PersonId is required!");
-        if(hasDiseaseHistoryId)
+        if (hasDiseaseHistoryId)
             return personService.deleteDiseaseHistory(personId, diseaseHistoryId);
         return personService.deletePerson(personId);
     }
@@ -79,7 +79,7 @@ public class PersonResource {
             @QueryParam("ageUpperLimit") @Min(0) @Max(150) Integer ageUpperLimit,
             @QueryParam("from") String from,
             @QueryParam("to") String to
-            ) {
+    ) {
 
         boolean hasPersonId = Objects.nonNull(personIds) && !personIds.isEmpty();
         boolean hasDiseaseId = Objects.nonNull(diseaseIds) && !diseaseIds.isEmpty();
@@ -97,13 +97,14 @@ public class PersonResource {
         boolean hasAnyCombination = hasPersonIdCombination || hasDiseaseIdCombination || hasNameCombination ||
                 hasWeightCombination || hasAgeCombination || hasDateCombination;
 
-        if(hasAnyCombination) throw new BadRequestException("You may combine either personId or diseaseIds with other " +
-                "types of searches (weight, date, age or name search) ");
+        if (hasAnyCombination)
+            throw new BadRequestException("You may combine either personId or diseaseIds with other " +
+                    "types of searches (weight, date, age or name search) ");
         else if (hasPersonId) return personService.getByIds(personIds);
-        else if (hasName) return personService.getByName(firstName,lastName,diseaseIds);
-        else if (hasAge) return personService.getByAge(ageLowerLimit,ageUpperLimit,diseaseIds);
-        else if (hasWeight) return personService.getByWeight(weightLowerLimit,weightUpperLimit,diseaseIds);
-        else if (hasDate) return personService.getByDate(from,to,diseaseIds);
+        else if (hasName) return personService.getByName(firstName, lastName, diseaseIds);
+        else if (hasAge) return personService.getByAge(ageLowerLimit, ageUpperLimit, diseaseIds);
+        else if (hasWeight) return personService.getByWeight(weightLowerLimit, weightUpperLimit, diseaseIds);
+        else if (hasDate) return personService.getByDate(from, to, diseaseIds);
         else if (hasDiseaseId) return personService.getByDiseaseIds(diseaseIds);
         return personService.getAll();
     }

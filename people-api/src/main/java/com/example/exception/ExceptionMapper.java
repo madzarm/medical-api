@@ -1,8 +1,5 @@
 package com.example.exception;
 
-import com.example.exception.exceptions.*;
-import com.fasterxml.jackson.core.JsonParseException;
-
 import javax.ws.rs.core.Response;
 import javax.ws.rs.ext.Provider;
 

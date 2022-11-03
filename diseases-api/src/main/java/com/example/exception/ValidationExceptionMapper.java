@@ -13,15 +13,13 @@ import java.util.stream.Collectors;
 @Provider
 public class ValidationExceptionMapper implements ExceptionMapper<ConstraintViolationException> {
 
-    private String getPropertyName(Path path)
-    {
+    private String getPropertyName(Path path) {
         String[] split = path.toString().split("[.]");
         return split[split.length - 1];
     }
 
     @Override
-    public Response toResponse(ConstraintViolationException exception)
-    {
+    public Response toResponse(ConstraintViolationException exception) {
         Map<String, String> errors = exception.getConstraintViolations().stream()
                 .collect(Collectors.toMap(v -> getPropertyName(v.getPropertyPath()), ConstraintViolation::getMessage));
 

@@ -6,13 +6,14 @@ import java.util.stream.Collectors;
 
 public class ValidationResult {
 
-    private String message;
-    private boolean success;
+    private final String message;
+    private final boolean success;
 
     public ValidationResult(String message) {
         this.success = true;
         this.message = message;
     }
+
     public ValidationResult(Set<? extends ConstraintViolation<?>> violations) {
         this.success = false;
         this.message = violations.stream()

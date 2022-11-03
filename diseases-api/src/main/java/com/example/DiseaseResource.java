@@ -8,8 +8,7 @@ import org.eclipse.microprofile.openapi.annotations.Operation;
 import org.eclipse.microprofile.openapi.annotations.parameters.RequestBody;
 
 import javax.inject.Inject;
-import javax.transaction.Transactional;;
-
+import javax.transaction.Transactional;
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
@@ -80,14 +79,14 @@ public class DiseaseResource {
         boolean hasId = Objects.nonNull(diseaseId);
         boolean hasOnlyId = hasId && !hasName && !hasCurable;
         boolean hasOnlyNameButNoCurable = !hasId && hasName && !hasCurable;
-        boolean hasOnlyCurable = hasCurable && !(hasId ||hasName);
+        boolean hasOnlyCurable = hasCurable && !(hasId || hasName);
 
-        if(hasOnlyId || hasOnlyNameButNoCurable || hasOnlyCurable)
+        if (hasOnlyId || hasOnlyNameButNoCurable || hasOnlyCurable)
             throw new BadRequestException();
         else if (hasId)
-            return diseaseService.updateDiseaseById(diseaseId,name,curable);
+            return diseaseService.updateDiseaseById(diseaseId, name, curable);
         else
-            return diseaseService.updateDiseaseByName(name,curable);
+            return diseaseService.updateDiseaseByName(name, curable);
     }
 
     @DELETE

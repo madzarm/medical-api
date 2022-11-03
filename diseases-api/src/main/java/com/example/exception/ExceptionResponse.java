@@ -1,7 +1,7 @@
 package com.example.exception;
 
 
-public class ExceptionResponse{
+public class ExceptionResponse {
     private String code;
     private String message;
 
